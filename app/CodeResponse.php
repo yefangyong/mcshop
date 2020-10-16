@@ -10,9 +10,11 @@ class CodeResponse
     const SUCCESS       = [0, 'ok'];
     const FAIL          = [-1, 'fail'];
     const PARAM_ILLEGAL = [401, 'param error'];
+    const UN_LOGIN      = [501, '未登录'];
+    const UPDATED_FAIL  = [505, '数据更新失败'];
 
     //业务返回码
-    const AUTH_INVALID_ACCOUNT     = [700, ''];
+    const AUTH_INVALID_ACCOUNT     = [700, '账号不存在'];
     const AUTH_CAPTCHA_UNSUPPORT   = [701, ''];
     const AUTH_CAPTCHA_FREQUENCY   = [702, '验证码未超时1分钟，不能发送'];
     const AUTH_CAPTCHA_UNMATCH     = [703, '验证码错误'];

@@ -9,6 +9,24 @@ use App\Http\Controllers\Controller;
 
 class WxController extends Controller
 {
+
+    protected $only;
+    protected $except;
+
+    public function __construct()
+    {
+        $option = [];
+        if (!is_null($this->only)) {
+            $option['only'] = $this->only;
+        }
+
+        if (!is_null($this->except)) {
+            $option['except'] = $this->except;
+        }
+
+        $this->middleware('auth:wx', $option);
+    }
+
     private function codeReturn($codeResponse, $data = null, $info = '')
     {
         list($errno, $errmsg) = $codeResponse;

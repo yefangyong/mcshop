@@ -9,12 +9,27 @@ use App\Http\Services\UserServices;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends WxController
 {
+    protected $only = ['user'];
+
+    public function user()
+    {
+        $user = Auth::guard('wx')->user();
+        return $this->success($user);
+    }
+
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \App\Exceptions\BusinessException
+     * 注册账号
+     */
     public function register(Request $request)
     {
         $username = $request->input('username', '');
@@ -72,6 +87,12 @@ class AuthController extends WxController
 
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
+     * 发送验证码
+     */
     public function regCaptcha(Request $request)
     {
         $mobile   = $request->input('mobile');
@@ -102,5 +123,49 @@ class AuthController extends WxController
         $code = UserServices::getInstance()->setCaptcha($mobile);
         UserServices::getInstance()->sendCaptchaMsg($mobile, $code);
         return $this->success();
+    }
+
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     * 登录接口
+     */
+    public function login(Request $request)
+    {
+        $username = $request->input('username', '');
+        $password = $request->input('password', '');
+
+        if (empty($username) || empty($password)) {
+            return $this->fail(CodeResponse::PARAM_ILLEGAL);
+        }
+
+        $user = UserServices::getInstance()->getByUsername($username);
+
+        if (is_null($user)) {
+            return $this->fail(CodeResponse::AUTH_INVALID_ACCOUNT);
+        }
+
+        $isPass = Hash::check($password, $user->getAuthPassword());
+
+        if (!$isPass) {
+            return $this->fail(CodeResponse::AUTH_INVALID_ACCOUNT, '账号和密码不正确');
+        }
+
+        $user->last_login_time = now()->toDateTimeString();
+        $user->last_login_ip   = $request->getClientIp();
+
+        if (!$user->save()) {
+            return $this->fail(CodeResponse::UPDATED_FAIL);
+        }
+
+        $token = Auth::guard('wx')->login($user);
+
+        return $this->success([
+            'token'    => $token,
+            'userinfo' => [
+                'nickname' => $username,
+                'avatar'   => $user->avatar
+            ]
+        ]);
     }
 }

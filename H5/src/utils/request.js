@@ -15,6 +15,9 @@ service.interceptors.request.use(
         'Authorization'
       ) || ''}`;
     }
+    if (config.version === 'V2') {
+        config.baseURL = process.env.VUE_APP_BASE_API_V2;
+    }
     return config;
   },
   err => Promise.reject(err)

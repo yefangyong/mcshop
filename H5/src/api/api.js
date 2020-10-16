@@ -33,6 +33,7 @@ export function authLoginByAccount(data) {
   return request({
     url: AuthLoginByAccount,
     method: 'post',
+      version: 'V2',
     data
   })
 }
@@ -55,7 +56,7 @@ export function authProfile(data) {
   return request({
     url: AuthProfile,
     method: 'post',
-    data    
+    data
   })
 }
 const AuthRegister='wx/auth/register'; //账号注册
@@ -63,6 +64,7 @@ export function authRegister(data) {
   return request({
     url: AuthRegister,
     method: 'post',
+      version: 'V2',
     data
   });
 }
@@ -71,7 +73,7 @@ export function authReset(data) {
   return request({
     url: AuthReset,
     method: 'post',
-    data    
+    data
   })
 }
 const AuthRegisterCaptcha='wx/auth/regCaptcha'; //注册验证码
@@ -79,7 +81,8 @@ export function authRegisterCaptcha(data) {
   return request({
     url: AuthRegisterCaptcha,
     method: 'post',
-    data    
+      version: 'V2',
+    data
   })
 }
 const AuthCaptcha='wx/auth/captcha'; //验证码
@@ -87,7 +90,7 @@ export function authCaptcha(data) {
   return request({
     url: AuthCaptcha,
     method: 'post',
-    data    
+    data
   })
 }
 
