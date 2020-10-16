@@ -2,4 +2,5 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('auth/register', 'AuthController@register');
+Route::post('auth/register', 'AuthController@register');
+Route::post('auth/register/code', 'AuthController@regCaptcha');

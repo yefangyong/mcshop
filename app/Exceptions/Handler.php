@@ -13,7 +13,8 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        //业务异常，不上报
+        BusinessException::class
     ];
 
     /**
@@ -50,6 +51,9 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if ($exception instanceof BusinessException) {
+            return response()->json(['error' => $exception->getCode(), 'errmsg' => $exception->getMessage()]);
+        }
         return parent::render($request, $exception);
     }
 }
