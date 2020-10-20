@@ -44,7 +44,6 @@ abstract class TestCase extends BaseTestCase
             unset($content2[$key]);
         }
         $this->assertEquals($content2, $content1);
-        $response1->assertJson($content2);
     }
 
     private function getAuthHeader()

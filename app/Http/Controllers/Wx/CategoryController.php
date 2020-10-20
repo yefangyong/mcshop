@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 
 class CategoryController extends WxController
 {
+    protected $only = [];
+
     public function index(Request $request)
     {
         $id           = $request->input('id', '');

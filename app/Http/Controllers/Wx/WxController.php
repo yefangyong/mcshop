@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Wx;
 
 use App\CodeResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class WxController extends Controller
 {
@@ -27,6 +29,36 @@ class WxController extends Controller
         $this->middleware('auth:wx', $option);
     }
 
+    protected function paginate($page)
+    {
+        if ($page instanceof LengthAwarePaginator) {
+            return [
+                'total' => $page->total(),
+                'page'  => $page->currentPage(),
+                'limit' => $page->perPage(),
+                'pages' => $page->lastPage(),
+                'list'  => $page->items()
+            ];
+        }
+
+        if ($page instanceof Collection) {
+            $page = $page->toArray();
+        }
+
+        if (!is_array($page)) {
+            return $page;
+        }
+
+        $total = count($page);
+        return [
+            'total' => $total,
+            'page'  => 1,
+            'limit' => $total,
+            'pages' => 1,
+            'list'  => $page
+        ];
+    }
+
     private function codeReturn($codeResponse, $data = null, $info = '')
     {
         list($errno, $errmsg) = $codeResponse;
@@ -36,8 +68,15 @@ class WxController extends Controller
                 return $item !== null;
             });
             $res['data'] = $data;
+        } else {
+            $res['data'] = $data;
         }
         return response()->json($res);
+    }
+
+    public function successPaginate($page)
+    {
+        return $this->success($this->paginate($page));
     }
 
     public function success($data = null, $info = '')
