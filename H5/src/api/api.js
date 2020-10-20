@@ -12,7 +12,8 @@ const CatalogList='wx/catalog/index'; //分类目录全部分类数据接口
 export function catalogList() {
   return request({
     url: CatalogList,
-    method: 'get'
+    method: 'get',
+      version: 'V2',
   })
 }
 
@@ -21,6 +22,7 @@ export function catalogCurrent(query) {
   return request({
     url: CatalogCurrent,
     method: 'get',
+      version: 'V2',
     params: query
   })
 }

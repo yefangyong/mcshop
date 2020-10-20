@@ -1,18 +1,18 @@
 <?php
 
 
-namespace App\Http\Services;
+namespace App\Services\User;
 
 
 use App\CodeResponse;
 use App\Exceptions\BusinessException;
-use App\Models\User;
+use App\Models\User\User;
 use App\Notifications\VerificationCode;
+use App\Services\BaseServices;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Leonis\Notifications\EasySms\Channels\EasySmsChannel;
 use Overtrue\EasySms\PhoneNumber;
@@ -69,10 +69,10 @@ class UserServices extends BaseServices
      */
     public function sendCaptchaMsg(string $mobile, $code)
     {
-        if (app()->env == 'testing') {
-            Log::info('手机号码：'.$mobile.'不用发送短信哦');
-            return true;
-        }
+//        if (app()->env == 'testing') {
+//            Log::info('手机号码：'.$mobile.'不用发送短信哦');
+//            return true;
+//        }
         Notification::route(
             EasySmsChannel::class,
             new PhoneNumber($mobile, 86)

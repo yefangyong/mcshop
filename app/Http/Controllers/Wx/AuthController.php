@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Wx;
 
 
 use App\CodeResponse;
-use App\Http\Services\UserServices;
 use App\Models\User;
+use App\Services\User\UserServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -79,9 +79,9 @@ class AuthController extends WxController
         //TODO 新用户发券
         return $this->success([
             'token'    => '124',
-            'userinfo' => [
-                'nickname' => $username,
-                'avatar'   => $avatarUrl
+            'userInfo' => [
+                'nickName' => $username,
+                'avatarUrl'   => $avatarUrl
             ]
         ]);
 
@@ -162,9 +162,9 @@ class AuthController extends WxController
 
         return $this->success([
             'token'    => $token,
-            'userinfo' => [
-                'nickname' => $username,
-                'avatar'   => $user->avatar
+            'userInfo' => [
+                'nickName' => $username,
+                'avatarUrl'   => $user->avatar
             ]
         ]);
     }

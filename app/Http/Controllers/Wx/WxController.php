@@ -30,8 +30,11 @@ class WxController extends Controller
     private function codeReturn($codeResponse, $data = null, $info = '')
     {
         list($errno, $errmsg) = $codeResponse;
-        $res = ['error' => $errno, 'errmsg' => $info ?: $errmsg];
-        if (!is_null($data)) {
+        $res = ['errno' => $errno, 'errmsg' => $info ?: $errmsg];
+        if (is_array($data)) {
+            $data        = array_filter($data, function ($item) {
+                return $item !== null;
+            });
             $res['data'] = $data;
         }
         return response()->json($res);
@@ -42,8 +45,8 @@ class WxController extends Controller
         return $this->codeReturn(CodeResponse::SUCCESS, $data, $info);
     }
 
-    public function fail(array $codedResponse, $info = '')
+    public function fail(array $codedResponse, $info = '', $data = null)
     {
-        return $this->codeReturn($codedResponse, $info);
+        return $this->codeReturn($codedResponse, $data, $info);
     }
 }

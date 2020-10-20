@@ -7,11 +7,12 @@ namespace App;
 class CodeResponse
 {
     //通用返回码
-    const SUCCESS       = [0, 'ok'];
-    const FAIL          = [-1, 'fail'];
-    const PARAM_ILLEGAL = [401, 'param error'];
-    const UN_LOGIN      = [501, '未登录'];
-    const UPDATED_FAIL  = [505, '数据更新失败'];
+    const SUCCESS         = [0, '成功'];
+    const FAIL            = [-1, 'fail'];
+    const PARAM_ILLEGAL   = [401, 'param error'];
+    const PARAM_NOT_EMPTY = [402, 'arg0must not be null'];
+    const UN_LOGIN        = [501, '未登录'];
+    const UPDATED_FAIL    = [505, '数据更新失败'];
 
     //业务返回码
     const AUTH_INVALID_ACCOUNT     = [700, '账号不存在'];

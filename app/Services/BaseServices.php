@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Http\Services;
+namespace App\Services;
 
 
 class BaseServices
@@ -21,9 +21,10 @@ class BaseServices
      */
     public static function getInstance()
     {
-        if (is_null(static::$instance)) {
-            static::$instance = new static();
+        if (self::$instance instanceof static) {
+            return self::$instance;
         }
+        static::$instance = new static();
         return static::$instance;
     }
 }
