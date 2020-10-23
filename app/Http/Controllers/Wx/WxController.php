@@ -6,8 +6,10 @@ namespace App\Http\Controllers\Wx;
 
 use App\CodeResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 
 class WxController extends Controller
 {
@@ -52,9 +54,9 @@ class WxController extends Controller
         $total = count($page);
         return [
             'total' => $total,
-            'page'  => 1,
+            'page'  => 0,
             'limit' => $total,
-            'pages' => 1,
+            'pages' => 0,
             'list'  => $page
         ];
     }
@@ -68,7 +70,7 @@ class WxController extends Controller
                 return $item !== null;
             });
             $res['data'] = $data;
-        } else {
+        } elseif (!is_null($data)) {
             $res['data'] = $data;
         }
         return response()->json($res);
@@ -84,8 +86,35 @@ class WxController extends Controller
         return $this->codeReturn(CodeResponse::SUCCESS, $data, $info);
     }
 
+    /**
+     * @return Authenticatable|null
+     * 返回用户数据
+     */
+    public function user()
+    {
+        return Auth::guard('wx')->user();
+    }
+
     public function fail(array $codedResponse, $info = '', $data = null)
     {
         return $this->codeReturn($codedResponse, $data, $info);
+    }
+
+    /**
+     * @return bool
+     * 判断是否登录
+     */
+    public function isLogin()
+    {
+        return !is_null($this->user());
+    }
+
+    /**
+     * @return mixed
+     * 获取登录用户ID
+     */
+    public function userId()
+    {
+        return $this->user()->getAuthIdentifier();
     }
 }

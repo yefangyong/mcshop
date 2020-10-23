@@ -2,18 +2,22 @@
 
 use Illuminate\Support\Facades\Route;
 
-//用户相关路由
+//用户模块
 Route::post('auth/register', 'AuthController@register');
 Route::post('auth/regCaptcha', 'AuthController@regCaptcha');
 Route::post('auth/captcha', 'AuthController@regCaptcha');
 Route::post('auth/login', 'AuthController@login');
 Route::get('auth/user', 'AUthController@user');
 
-//商品分类相关路由
+//商品模块--分类
 Route::get('catalog/index', 'CategoryController@index');
 Route::get('catalog/current', 'CategoryController@current');
 
-//商品品牌相关路由
+//商品模块--品牌
 Route::get('brand/detail', 'BrandController@detail');
 Route::get('brand/list', 'BrandController@list');
 
+//商品模块--商品
+Route::get('goods/category', 'GoodsController@category');
+Route::get('goods/count', 'GoodsController@count');
+Route::get('goods/list', 'GoodsController@list');

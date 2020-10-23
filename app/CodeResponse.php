@@ -12,6 +12,7 @@ class CodeResponse
     const PARAM_ILLEGAL   = [401, 'param error'];
     const PARAM_NOT_EMPTY = [402, 'arg0must not be null'];
     const UN_LOGIN        = [501, '未登录'];
+    const SYSTEM_ERROR    = [502, '系统内部错误'];
     const UPDATED_FAIL    = [505, '数据更新失败'];
 
     //业务返回码
