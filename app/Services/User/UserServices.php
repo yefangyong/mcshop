@@ -10,6 +10,7 @@ use App\Models\User\User;
 use App\Notifications\VerificationCode;
 use App\Services\BaseServices;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -19,6 +20,16 @@ use Overtrue\EasySms\PhoneNumber;
 
 class UserServices extends BaseServices
 {
+    /**
+     * @param $ids
+     * @return Builder[]|Collection|\Illuminate\Support\Collection
+     * 获取用户
+     */
+    public function getUsers($ids) {
+        if (empty($ids))
+            return collect([]);
+        return User::query()->where('deleted', 0)->whereIn('id',$ids)->get();
+    }
     /**
      * 根据用户名返回用户信息
      * @param $username

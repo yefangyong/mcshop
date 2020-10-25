@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Wx;
 
 use App\CodeResponse;
 use App\Constant;
+use App\Models\Collect;
+use App\Services\CollectServices;
+use App\Services\CommentServices;
+use App\Services\Goods\BrandServices;
 use App\Services\Goods\CategoryServices;
 use App\Services\Goods\GoodsServices;
 use App\Services\SearchHistoryServices;
@@ -14,6 +18,63 @@ use Illuminate\Http\Request;
 class GoodsController extends WxController
 {
     protected $only = [];
+
+
+    public function detail(Request $request)
+    {
+        $id = $request->input('id', '');
+        if (empty($id)) {
+            return $this->fail(CodeResponse::PARAM_NOT_EMPTY);
+        }
+        //商品信息
+        $info = GoodsServices::getInstance()->getGoods($id);
+        if (empty($info)) {
+            return $this->fail(CodeResponse::SYSTEM_ERROR);
+        }
+        //商品属性
+        $goodAttributeList = GoodsServices::getInstance()->getGoodsAttributesList($id);
+
+        //商品规格
+        $goodSpecification = GoodsServices::getInstance()->getGoodsSpecification($id);
+
+        //商品规格对应的数量和价格
+        $goodProductList = GoodsServices::getInstance()->getGoodsProducts($id);
+
+        //商品问题
+        $goodIssue = GoodsServices::getInstance()->getGoodsIssue();
+
+        //商品品牌商
+        $goodBrand  = $info->brand_id ? BrandServices::getInstance()->getBrand($info->brand_id) : (object) [];
+
+        //商品评论
+        $goodComment = CommentServices::getInstance()->getGoodsCommentWithUserInfo($id);
+
+        //用户收藏数
+        $useHasCollect = CollectServices::getInstance()->getGoodsCollect($id);
+
+        //记录用户足迹
+        if ($this->isLogin()) {
+            GoodsServices::getInstance()->saveFootPrint($this->userId(), $id);
+        }
+
+        //todo 团购信息
+
+        return $this->success([
+            'info' => $info,
+            'userHasCollect' => $useHasCollect,
+            'issue' => $goodIssue,
+            'comment' => $goodComment,
+            'specificationList' => $goodSpecification,
+            'productList' => $goodProductList,
+            'attribute' => $goodAttributeList,
+            'brand' => $goodBrand,
+            'groupon' => [],
+            'share' => false,
+            'shareImage' => $info->share_url
+        ]);
+
+    }
+
 
     /**
      * @param  Request  $request
@@ -67,7 +128,6 @@ class GoodsController extends WxController
         $limit      = $request->input('limit', 10);
         $order      = $request->input('order', 'desc');
         $sort       = $request->input('sort', 'add_time');
-
         //todo 参数验证
 
         if ($this->isLogin() && !empty($keyword)) {

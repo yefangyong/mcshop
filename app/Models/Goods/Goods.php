@@ -10,9 +10,11 @@ class Goods extends BaseModel
     protected $table = 'goods';
 
     protected $casts = [
-        'deleted' => 'boolean',
-        'is_hot'  => 'boolean',
-        'is_new'  => 'boolean'
+        'deleted'    => 'boolean',
+        'is_hot'     => 'boolean',
+        'is_new'     => 'boolean',
+        'is_on_sale' => 'boolean',
+        'gallery'    => 'array'
     ];
 
 }

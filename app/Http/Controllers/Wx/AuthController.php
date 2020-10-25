@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Wx;
 
 
 use App\CodeResponse;
-use App\Models\User;
+
+use App\Models\User\User;
 use App\Services\User\UserServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;

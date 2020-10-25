@@ -21,3 +21,4 @@ Route::get('brand/list', 'BrandController@list');
 Route::get('goods/category', 'GoodsController@category');
 Route::get('goods/count', 'GoodsController@count');
 Route::get('goods/list', 'GoodsController@list');
+Route::get('goods/detail', 'GoodsController@detail');

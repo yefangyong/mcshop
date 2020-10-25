@@ -36,9 +36,9 @@ class WxController extends Controller
         if ($page instanceof LengthAwarePaginator) {
             return [
                 'total' => $page->total(),
-                'page'  => $page->currentPage(),
+                'page'  => $page->total() == 0 ? 0 : $page->currentPage(),
                 'limit' => $page->perPage(),
-                'pages' => $page->lastPage(),
+                'pages' => $page->total() == 0 ? 0 : $page->lastPage(),
                 'list'  => $page->items()
             ];
         }
