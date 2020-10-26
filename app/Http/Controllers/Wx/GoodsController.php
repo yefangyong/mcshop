@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Wx;
 
 use App\CodeResponse;
 use App\Constant;
+use App\Exceptions\BusinessException;
+use App\Input\GoodsListInput;
 use App\Models\Collect;
 use App\Services\CollectServices;
 use App\Services\CommentServices;
@@ -19,13 +21,15 @@ class GoodsController extends WxController
 {
     protected $only = [];
 
-
+    /**
+     * @param  Request  $request
+     * @return JsonResponse
+     * @throws BusinessException
+     * 获取商品的详细信息
+     */
     public function detail(Request $request)
     {
-        $id = $request->input('id', '');
-        if (empty($id)) {
-            return $this->fail(CodeResponse::PARAM_NOT_EMPTY);
-        }
+        $id = $this->verifyId('id');
         //商品信息
         $info = GoodsServices::getInstance()->getGoods($id);
         if (empty($info)) {
@@ -44,7 +48,7 @@ class GoodsController extends WxController
         $goodIssue = GoodsServices::getInstance()->getGoodsIssue();
 
         //商品品牌商
-        $goodBrand  = $info->brand_id ? BrandServices::getInstance()->getBrand($info->brand_id) : (object) [];
+        $goodBrand = $info->brand_id ? BrandServices::getInstance()->getBrand($info->brand_id) : (object) [];
 
         //商品评论
         $goodComment = CommentServices::getInstance()->getGoodsCommentWithUserInfo($id);
@@ -60,17 +64,17 @@ class GoodsController extends WxController
         //todo 团购信息
 
         return $this->success([
-            'info' => $info,
-            'userHasCollect' => $useHasCollect,
-            'issue' => $goodIssue,
-            'comment' => $goodComment,
+            'info'              => $info,
+            'userHasCollect'    => $useHasCollect,
+            'issue'             => $goodIssue,
+            'comment'           => $goodComment,
             'specificationList' => $goodSpecification,
-            'productList' => $goodProductList,
-            'attribute' => $goodAttributeList,
-            'brand' => $goodBrand,
-            'groupon' => [],
-            'share' => false,
-            'shareImage' => $info->share_url
+            'productList'       => $goodProductList,
+            'attribute'         => $goodAttributeList,
+            'brand'             => $goodBrand,
+            'groupon'           => [],
+            'share'             => false,
+            'shareImage'        => $info->share_url
         ]);
 
     }
@@ -79,14 +83,12 @@ class GoodsController extends WxController
     /**
      * @param  Request  $request
      * @return JsonResponse
+     * @throws BusinessException
      * 获取商品分类的数据
      */
     public function category(Request $request)
     {
-        $id = $request->input('id', 0);
-        if (empty($id)) {
-            return $this->fail(CodeResponse::PARAM_NOT_EMPTY);
-        }
+        $id = $this->verifyId('id');
         $currentCategory = CategoryServices::getInstance()->getCategoryById($id);
         if (is_null($currentCategory)) {
             return $this->fail(CodeResponse::SYSTEM_ERROR);
@@ -115,31 +117,22 @@ class GoodsController extends WxController
     /**
      * @param  Request  $request
      * @return JsonResponse
-     * 获取商品的列表
+     * @throws BusinessException
+     *
      */
     public function list(Request $request)
     {
-        $categoryId = $request->input('categoryId', '');
-        $brandId    = $request->input('brandId', '');
-        $keyword    = $request->input('keyword', '');
-        $isNew      = $request->input('isNew', '');
-        $isHot      = $request->input('isHot', '');
-        $page       = $request->input('page', 1);
-        $limit      = $request->input('limit', 10);
-        $order      = $request->input('order', 'desc');
-        $sort       = $request->input('sort', 'add_time');
-        //todo 参数验证
+        $input = GoodsListInput::new();
 
-        if ($this->isLogin() && !empty($keyword)) {
-            SearchHistoryServices::getInstance()->save($this->userId(), $keyword, Constant::SEARCH_HISTORY_FROM_WX);
+        if ($this->isLogin() && !empty($input->keyword)) {
+            SearchHistoryServices::getInstance()->save($this->userId(), $input->keyword, Constant::SEARCH_HISTORY_FROM_WX);
         }
 
         //查询列表数据
-        $goodLists = GoodsServices::getInstance()->GoodsLists($categoryId, $brandId, $isNew, $isHot, $keyword, $page,
-            $sort, $order, $limit);
+        $goodLists = GoodsServices::getInstance()->GoodsLists($input);
 
         //查询商品所属类目列表
-        $categoryIds = GoodsServices::getInstance()->getCatIds($keyword, $brandId, $isNew, $isHot);
+        $categoryIds = GoodsServices::getInstance()->getCatIds($input);
 
         $categoryList = CategoryServices::getInstance()->getCategoryByIds($categoryIds);
 

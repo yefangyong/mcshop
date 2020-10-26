@@ -6,8 +6,10 @@ namespace App\Http\Controllers\Wx;
 
 use App\CodeResponse;
 
+use App\Exceptions\BusinessException;
 use App\Models\User\User;
 use App\Services\User\UserServices;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -27,16 +29,15 @@ class AuthController extends WxController
 
     /**
      * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \App\Exceptions\BusinessException
-     * 注册账号
+     * @return JsonResponse
+     * @throws BusinessException
      */
     public function register(Request $request)
     {
-        $username = $request->input('username', '');
-        $password = $request->input('password', '');
-        $mobile   = $request->input('mobile', '');
-        $code     = $request->input('code', '');
+        $username = $this->verifyString('username');
+        $password = $this->verifyId('password');
+        $mobile   = $this->verifyId('mobile');
+        $code     = $this->verifyId('code');
 
         if (empty($username) || empty($password) || empty($mobile) || empty($code)) {
             return $this->fail(CodeResponse::PARAM_ILLEGAL);
@@ -81,8 +82,8 @@ class AuthController extends WxController
         return $this->success([
             'token'    => '124',
             'userInfo' => [
-                'nickName' => $username,
-                'avatarUrl'   => $avatarUrl
+                'nickName'  => $username,
+                'avatarUrl' => $avatarUrl
             ]
         ]);
 
@@ -90,18 +91,13 @@ class AuthController extends WxController
 
     /**
      * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      * @throws \Exception
      * 发送验证码
      */
     public function regCaptcha(Request $request)
     {
-        $mobile   = $request->input('mobile');
-        $validate = Validator::make(['mobile' => $mobile], ['mobile' => 'regex:/^1[0-9]{10}$']);
-
-        if ($validate->failed()) {
-            return $this->fail(CodeResponse::AUTH_INVALID_MOBILE);
-        }
+        $mobile = $this->verifyId('mobile');
 
         $user = UserServices::getInstance()->getByMobile($mobile);
 
@@ -128,17 +124,14 @@ class AuthController extends WxController
 
     /**
      * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws BusinessException
      * 登录接口
      */
     public function login(Request $request)
     {
-        $username = $request->input('username', '');
-        $password = $request->input('password', '');
-
-        if (empty($username) || empty($password)) {
-            return $this->fail(CodeResponse::PARAM_ILLEGAL);
-        }
+        $username = $this->verifyString('username');
+        $password = $this->verifyId('password');
 
         $user = UserServices::getInstance()->getByUsername($username);
 
@@ -164,8 +157,8 @@ class AuthController extends WxController
         return $this->success([
             'token'    => $token,
             'userInfo' => [
-                'nickName' => $username,
-                'avatarUrl'   => $user->avatar
+                'nickName'  => $username,
+                'avatarUrl' => $user->avatar
             ]
         ]);
     }
