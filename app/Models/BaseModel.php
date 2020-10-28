@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
+/**
+ * App\Models\BaseModel
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
+ * @mixin \Eloquent
+ */
 class BaseModel extends Model
 {
     public $timestamps = false;
