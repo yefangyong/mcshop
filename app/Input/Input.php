@@ -42,7 +42,7 @@ class Input
     }
 
     /**
-     * @return Input
+     * @return Input | GoodsListInput | PageInput
      * @throws BusinessException
      */
     public static function new()

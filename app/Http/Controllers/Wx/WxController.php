@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 class WxController extends Controller
 {
     use ValidateRequest;
+
     protected $only;
     protected $except;
 
@@ -32,7 +33,7 @@ class WxController extends Controller
         $this->middleware('auth:wx', $option);
     }
 
-    protected function paginate($page)
+    protected function paginate($page, $list = null)
     {
         if ($page instanceof LengthAwarePaginator) {
             return [
@@ -40,7 +41,7 @@ class WxController extends Controller
                 'page'  => $page->total() == 0 ? 0 : $page->currentPage(),
                 'limit' => $page->perPage(),
                 'pages' => $page->total() == 0 ? 0 : $page->lastPage(),
-                'list'  => $page->items()
+                'list'  => $list ?? $page->items()
             ];
         }
 
@@ -65,7 +66,7 @@ class WxController extends Controller
     private function codeReturn($codeResponse, $data = null, $info = '')
     {
         list($errno, $errmsg) = $codeResponse;
-        $res = ['errno' => $errno, 'errmsg' => $info ?: $errmsg];
+        $res = ['errno' => $errno];
         if (is_array($data)) {
             $data        = array_filter($data, function ($item) {
                 return $item !== null;
@@ -74,6 +75,7 @@ class WxController extends Controller
         } elseif (!is_null($data)) {
             $res['data'] = $data;
         }
+        $res['errmsg'] = $info ?: $errmsg;
         return response()->json($res);
     }
 

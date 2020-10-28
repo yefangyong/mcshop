@@ -3,6 +3,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\BusinessException;
 
 class BaseServices
 {
@@ -26,5 +27,19 @@ class BaseServices
         }
         static::$instance = new static();
         return static::$instance;
+    }
+
+
+    /**
+     * @param  array  $response
+     * @param  null  $info
+     * @throws BusinessException
+     */
+    public function throwBusinessException(array $response, $info = null)
+    {
+        if (!is_null($info)) {
+            $response[1] = $info;
+        }
+        throw new BusinessException($response);
     }
 }

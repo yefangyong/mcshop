@@ -12,11 +12,10 @@ trait ValidateRequest
     /**
      * @param $key
      * @param  null  $default
-     * @param  array  $Rules
      * @return array|mixed|null
      * @throws BusinessException
      */
-    public function verifyId($key, $default = null, $Rules = [])
+    public function verifyId($key, $default = null)
     {
         return $this->verifyData($key, $default, 'integer | digits_between:1,20');
     }
@@ -38,7 +37,7 @@ trait ValidateRequest
      * @return array|mixed|null
      * @throws BusinessException
      */
-    public function verifyInteger($key, $default)
+    public function verifyInteger($key, $default = null)
     {
         return $this->verifyData($key, $default, 'integer');
     }

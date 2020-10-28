@@ -27,15 +27,16 @@ abstract class TestCase extends BaseTestCase
         if ($method == 'get') {
             $response1 = $this->get($url, $this->getAuthHeader());
             $response2 = $client->get('http://127.0.0.1:8080'.$url,
-                ['headers' => ['X-Litemall-Toekn' => $this->token]]);
+                ['headers' => ['X-Litemall-Token' => $this->token]]);
         } else {
             $response1 = $this->post($url, $data, $this->getAuthHeader());
             $response2 = $client->post('http://127.0.0.1/'.$url, [
-                ['headers' => ['X-Litemall-Toekn' => $this->token]],
+                ['headers' => ['X-Litemall-Token' => $this->token]],
                 'json' => $data
             ]);
         }
         $content1 = $response1->getContent();
+        $content1 = json_encode(json_decode($content1, true), JSON_UNESCAPED_UNICODE);
         echo "mcshop => $content1".PHP_EOL;
         $content1 = json_decode($content1, true);
         $content2 = $response2->getBody()->getContents();
@@ -50,7 +51,7 @@ abstract class TestCase extends BaseTestCase
 
     private function getAuthHeader()
     {
-        $response    = $this->post('/wx/auth/login', ['username' => 'yfy', 'password' => 123]);
+        $response    = $this->post('/wx/auth/login', ['username' => 'yfy', 'password' => '123']);
         $content     = $response->getOriginalContent();
         $token       = $content['data']['token'];
         $this->token = $token;

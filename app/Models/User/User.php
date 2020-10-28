@@ -13,7 +13,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class User extends BaseModel implements AuthenticatableContract,
     AuthorizableContract, JWTSubject
 {
-    use Authenticatable, Authorizable,Notifiable;
+    use Authenticatable, Authorizable, Notifiable;
 
     protected $table = 'user';
 
@@ -49,7 +49,7 @@ class User extends BaseModel implements AuthenticatableContract,
     public function getJWTCustomClaims()
     {
         return [
-            'iss'    => env('JWT_ISS'),
+            'iss'    => env('JWT_ISSUER'),
             'userId' => $this->getKey()
         ];
     }

@@ -22,3 +22,8 @@ Route::get('goods/category', 'GoodsController@category');
 Route::get('goods/count', 'GoodsController@count');
 Route::get('goods/list', 'GoodsController@list');
 Route::get('goods/detail', 'GoodsController@detail');
+
+//商品模块--优惠券
+Route::get('coupon/list', 'CouponController@list');
+Route::get('coupon/mylist', 'CouponController@mylist');
+Route::get('coupon/receive', 'CouponController@receive');

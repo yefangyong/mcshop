@@ -47,7 +47,7 @@ class CodeResponse
     const GROUPON_FULL    = [732, ''];
     const GROUPON_JOIN    = [733, ''];
 
-    const COUPON_EXCEED_LIMIT = [740, ''];
+    const COUPON_EXCEED_LIMIT = [740, '优惠券已领完'];
     const COUPON_RECEIVE_FAIL = [741, ''];
     const COUPON_CODE_INVALID = [742, ''];
 
