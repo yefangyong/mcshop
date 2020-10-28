@@ -11,6 +11,25 @@ use Illuminate\Support\Str;
 
 class BaseModel extends Model
 {
+    public $timestamps = false;
+
+    public $defaultCasts = ['deleted' => 'boolean'];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        parent::mergeCasts($this->defaultCasts);
+    }
+
+    public static function new() {
+        return new static();
+    }
+
+    public function getTable()
+    {
+        return $this->table ?? Str::snake(class_basename($this));
+    }
+
     public function toArray()
     {
         $items  = parent::toArray();

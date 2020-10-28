@@ -87,7 +87,7 @@ class CouponServices extends BaseServices
      */
     public function saveCouponUser($userId, $couponId, $start_time, $end_time)
     {
-        $couponUser              = new CouponUser();
+        $couponUser = CouponUser::new();
         $couponUser->user_id     = $userId;
         $couponUser->coupon_id   = $couponId;
         $couponUser->start_time  = $start_time;

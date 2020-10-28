@@ -15,7 +15,6 @@ class User extends BaseModel implements AuthenticatableContract,
 {
     use Authenticatable, Authorizable, Notifiable;
 
-    protected $table = 'user';
 
     public $timestamps = false;
     /**
