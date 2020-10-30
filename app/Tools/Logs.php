@@ -11,13 +11,26 @@ use Monolog\Logger;
 
 class Logs
 {
+    const LOG_KEY = 'mcshop';
+
     public function __construct()
     {
 
     }
 
+    public static function get_log_hash()
+    {
+        return substr(md5(time().self::LOG_KEY.rand(1, 10000)), 8, 16);
+    }
+
     public static function save($message, $data = [], $filename = 'mcshop', $isDate = false)
     {
+        global $log_hash;
+
+        if (strlen($log_hash) == 0) {
+            $log_hash = self::get_log_hash();
+        }
+
         $log = new Logger('mcshop log');
 
         //通过命令行执行时区分一下
@@ -34,9 +47,10 @@ class Logs
         }
 
 
-
         self::mkDirs($path);
         $path = $path.$filename;
+
+        $message = $log_hash.' '.$message;
 
         if (!is_array($data)) {
             $message .= ':'.$data;
