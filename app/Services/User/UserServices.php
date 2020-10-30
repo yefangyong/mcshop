@@ -25,11 +25,14 @@ class UserServices extends BaseServices
      * @return Builder[]|Collection|\Illuminate\Support\Collection
      * 获取用户
      */
-    public function getUsers($ids) {
-        if (empty($ids))
+    public function getUsers($ids)
+    {
+        if (empty($ids)) {
             return collect([]);
-        return User::query()->where('deleted', 0)->whereIn('id',$ids)->get();
+        }
+        return User::query()->whereIn('id', $ids)->get();
     }
+
     /**
      * 根据用户名返回用户信息
      * @param $username
@@ -37,7 +40,7 @@ class UserServices extends BaseServices
      */
     public function getByUsername($username)
     {
-        return User::query()->where('username', $username)->where('deleted', 0)->first();
+        return User::query()->where('username', $username)->first();
     }
 
     /**
@@ -47,7 +50,7 @@ class UserServices extends BaseServices
      */
     public function getByMobile($mobile)
     {
-        return User::query()->where('mobile', $mobile)->where('deleted', 0)->first();
+        return User::query()->where('mobile', $mobile)->first();
     }
 
     /**

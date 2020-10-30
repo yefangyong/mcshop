@@ -20,7 +20,7 @@ class BrandServices extends BaseServices
      */
     public function getBrand($id)
     {
-        return Brand::query()->where('deleted', 0)->find($id);
+        return Brand::query()->find($id);
     }
 
     /**
@@ -34,11 +34,11 @@ class BrandServices extends BaseServices
      */
     public function getBrandList($page, $limit, $sort, $order, $columns = ['*'])
     {
-        $query = Brand::query()->where('deleted', 0);
+        $query = Brand::query();
         return $query->when((!empty($sort) && !empty($order)), function ($query) use ($sort, $order) {
             return $query->orderBy($sort, $order);
         })->paginate($limit, $columns, 'page', $page);
-//        $query = Brand::query()->where('deleted', 0);
+//        $query = Brand::query();
 //        if (!empty($sort) && !empty($order)) {
 //            $query = $query->orderBy($sort, $order);
 //        }

@@ -12,7 +12,7 @@ class SearchHistoryServices extends BaseServices
     public function save($userId, $keyword, $from)
     {
         $history              = new SearchHistory();
-        $history->user_id      = $userId;
+        $history->user_id     = $userId;
         $history->keyword     = $keyword;
         $history->from        = $from;
         $history->add_time    = Carbon::now()->toDateTimeString();

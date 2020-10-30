@@ -9,6 +9,7 @@ use App\Models\Comment;
 use App\Services\User\UserServices;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 
 class CommentServices extends BaseServices
 {
@@ -23,7 +24,7 @@ class CommentServices extends BaseServices
      */
     public function getGoodsComment($goods_id, $page = 1, $limit = 2, $sort = 'add_time', $order = 'desc')
     {
-        return Comment::query()->where('deleted', 0)->where('value_id', $goods_id)->where('type',
+        return Comment::query()->where('value_id', $goods_id)->where('type',
             Constant::COMMENT_GOOD_TYPE)->orderBy($sort, $order)->paginate($limit,
             ['*'], 'page', $page);
     }
@@ -38,7 +39,7 @@ class CommentServices extends BaseServices
             $user = $users->get($comment->user_id);
             return [
                 'id'           => $comment->id,
-                'addTime'      => $comment->add_time,
+                'addTime'      => Carbon::instance($comment->add_time)->toDateTimeString(),
                 'content'      => $comment->content,
                 'adminContent' => $comment->admin_content,
                 'picList'      => $comment->pic_urls,

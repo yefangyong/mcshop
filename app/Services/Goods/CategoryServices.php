@@ -18,7 +18,7 @@ class CategoryServices extends BaseServices
      */
     public function getL1List()
     {
-        return Category::query()->where('deleted', 0)->where('pid', 0)->where('level', 'L1')->get();
+        return Category::query()->where('pid', 0)->where('level', 'L1')->get();
     }
 
     /**
@@ -28,7 +28,7 @@ class CategoryServices extends BaseServices
      */
     public function getL2ListDataByPid($pid)
     {
-        return Category::query()->where('deleted', 0)->where('pid', $pid)->where('level', 'L2')->get();
+        return Category::query()->where('pid', $pid)->where('level', 'L2')->get();
     }
 
     /**
@@ -38,7 +38,7 @@ class CategoryServices extends BaseServices
      */
     public function getCategoryById($id)
     {
-        return Category::query()->where('deleted', 0)->find($id);
+        return Category::query()->find($id);
     }
 
     /**
@@ -48,7 +48,7 @@ class CategoryServices extends BaseServices
      */
     public function getCategoryByPId($pid)
     {
-        return Category::query()->where('deleted', 0)->where('pid', $pid)->get();
+        return Category::query()->where('pid', $pid)->get();
     }
 
     /**
@@ -58,6 +58,6 @@ class CategoryServices extends BaseServices
      */
     public function getCategoryByIds($ids)
     {
-        return Category::query()->where('deleted', 0)->whereIn('id', $ids)->get();
+        return Category::query()->whereIn('id', $ids)->get();
     }
 }

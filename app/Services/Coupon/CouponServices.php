@@ -87,7 +87,7 @@ class CouponServices extends BaseServices
      */
     public function saveCouponUser($userId, $couponId, $start_time, $end_time)
     {
-        $couponUser = CouponUser::new();
+        $couponUser              = CouponUser::new();
         $couponUser->user_id     = $userId;
         $couponUser->coupon_id   = $couponId;
         $couponUser->start_time  = $start_time;
@@ -125,7 +125,7 @@ class CouponServices extends BaseServices
      */
     public function getCoupon($id)
     {
-        return Coupon::query()->where('deleted', 0)->find($id);
+        return Coupon::query()->find($id);
     }
 
 
@@ -137,7 +137,7 @@ class CouponServices extends BaseServices
      */
     public function getCouponList(PageInput $page, $column = ['*'])
     {
-        return Coupon::query()->select($column)->where('deleted', 0)->where('type',
+        return Coupon::query()->select($column)->where('type',
             Constant::COUPON_TYPE_COMMON)->where('status',
             Constant::COUPON_STATUS_NORMAL)->orderBy($page->sort, $page->order)->paginate($page->limit, $column, 'page',
             $page->page);
@@ -153,7 +153,7 @@ class CouponServices extends BaseServices
      */
     public function getMyCouponList(PageInput $page, $status, $userId, $column = ['*'])
     {
-        return CouponUser::query()->where('deleted', 0)->where('user_id', $userId)->where('status',
+        return CouponUser::query()->where('user_id', $userId)->where('status',
             $status)->orderBy($page->sort, $page->order)->paginate($page->limit, $column, 'page', $page->page);
     }
 
@@ -164,6 +164,6 @@ class CouponServices extends BaseServices
      */
     public function getCouponsByIds($ids)
     {
-        return Coupon::query()->where('deleted', 0)->whereIn('id', $ids)->get();
+        return Coupon::query()->whereIn('id', $ids)->get();
     }
 }

@@ -27,6 +27,4 @@ class FootPrint extends BaseModel
 {
     //
     protected $table = 'footprint';
-
-
 }

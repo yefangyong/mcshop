@@ -19,7 +19,9 @@ use Illuminate\Support\Str;
  */
 class BaseModel extends Model
 {
-    public $timestamps = false;
+    use BooleanSoftDeletes;
+
+    const CREATED_AT = 'add_time';
 
     public $defaultCasts = ['deleted' => 'boolean'];
 
@@ -29,7 +31,8 @@ class BaseModel extends Model
         parent::mergeCasts($this->defaultCasts);
     }
 
-    public static function new() {
+    public static function new()
+    {
         return new static();
     }
 
@@ -54,7 +57,6 @@ class BaseModel extends Model
 
     public function serializeDate(DateTimeInterface $date)
     {
-        $date = Carbon::instance($date)->toDateTimeString();
-        return strtotime($date);
+        return Carbon::instance($date)->toDateTimeString();
     }
 }

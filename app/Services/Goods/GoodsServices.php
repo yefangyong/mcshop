@@ -30,8 +30,8 @@ class GoodsServices extends BaseServices
         $footPrint              = new FootPrint();
         $footPrint->goods_id    = $goodId;
         $footPrint->user_id     = $userId;
-        $footPrint->add_time    = Carbon::now()->toDateTimeString();
         $footPrint->update_time = Carbon::now()->toDateTimeString();
+        $footPrint->deleted     = 0;
         $footPrint->save();
     }
 
@@ -41,7 +41,7 @@ class GoodsServices extends BaseServices
      */
     public function getGoodsIssue()
     {
-        return Issue::query()->where('deleted', 0)->get();
+        return Issue::query()->get();
     }
 
     /**
@@ -51,7 +51,7 @@ class GoodsServices extends BaseServices
      */
     public function getGoodsProducts($id)
     {
-        return GoodsProduct::query()->where('deleted', 0)->where('goods_id', $id)->get();
+        return GoodsProduct::query()->where('goods_id', $id)->get();
     }
 
     /**
@@ -61,7 +61,7 @@ class GoodsServices extends BaseServices
      */
     public function getGoodsSpecification($id)
     {
-        $spec = GoodsSpecification::query()->where('deleted', 0)->where('goods_id', $id)->get();
+        $spec = GoodsSpecification::query()->where('goods_id', $id)->get();
         $spec = $spec->groupBy('specification');
         return $spec->map(function ($v, $k) {
             return ['name' => $k, 'valueList' => $v];
@@ -70,7 +70,7 @@ class GoodsServices extends BaseServices
 
     public function getGoodsAttributesList($id)
     {
-        return GoodsAttribute::query()->where('deleted', 0)->where('goods_id', $id)->get();
+        return GoodsAttribute::query()->where('goods_id', $id)->get();
     }
 
     /**
@@ -80,7 +80,7 @@ class GoodsServices extends BaseServices
      */
     public function getGoods($id)
     {
-        return Goods::query()->where('deleted', 0)->find($id);
+        return Goods::query()->find($id);
     }
 
     /**
@@ -89,7 +89,7 @@ class GoodsServices extends BaseServices
      */
     public function countGoodsOnSales()
     {
-        return Goods::query()->where('deleted', 0)->where('is_on_sale', 1)->count('id');
+        return Goods::query()->where('is_on_sale', 1)->count('id');
     }
 
     /**
@@ -102,7 +102,7 @@ class GoodsServices extends BaseServices
 
         $query = Goods::query()->select([
             'id', 'name', 'brief', 'pic_url', 'is_new', 'is_hot', 'counter_price', 'retail_price'
-        ])->where('deleted', 0)->where('is_on_sale', 1);
+        ])->where('is_on_sale', 1);
 
         $query = $this->getGoodsQuery($query, $input->keyword, $input->brandId, $input->isNew, $input->isHot);
 
@@ -124,7 +124,7 @@ class GoodsServices extends BaseServices
      */
     public function getCatIds(GoodsListInput $input)
     {
-        $query = Goods::query()->where('deleted', 0)->where('is_on_sale', 1);
+        $query = Goods::query()->where('is_on_sale', 1);
         $query = $this->getGoodsQuery($query, $input->keyword, $input->brandId, $input->isNew, $input->isHot);
         return $query->select(['category_id'])->pluck('category_id')->toArray();
     }

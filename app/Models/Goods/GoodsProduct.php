@@ -34,7 +34,7 @@ class GoodsProduct extends BaseModel
 {
     protected $casts = [
         'specifications' => 'array',
-        'price' => 'float'
+        'price'          => 'float'
     ];
 
 }
