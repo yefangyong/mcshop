@@ -21,6 +21,15 @@ use Illuminate\Database\Eloquent\Model;
 class GoodsServices extends BaseServices
 {
     /**
+     * @param $ids
+     * @return Goods[]|Builder[]|Collection
+     * 根据商品的id,获取商品的列表
+     */
+    public function getGoodsListByIds($ids) {
+        return Goods::query()->whereIn('id', $ids)->get();
+    }
+
+    /**
      * @param $userId
      * @param $goodId
      * 记录用户的足迹

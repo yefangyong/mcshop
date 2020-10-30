@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Coupon;
+namespace App\Models\Promotion;
 
 use App\Models\BaseModel;
 

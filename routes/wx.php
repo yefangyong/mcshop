@@ -27,3 +27,6 @@ Route::get('goods/detail', 'GoodsController@detail');
 Route::get('coupon/list', 'CouponController@list');
 Route::get('coupon/mylist', 'CouponController@mylist');
 Route::get('coupon/receive', 'CouponController@receive');
+
+//商品模块--团购
+Route::get('groupon/list', 'GrouponController@list');

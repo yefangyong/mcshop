@@ -31,4 +31,14 @@ class Constant
     const COUPON_TIME_TYPE_DAYS = 0;
     const COUPON_TIME_TYPE_TIME = 1;
 
+    const Groupon_RULE_STATUS_ON = 0;
+    const Groupon_RULE_STATUS_DOWN_EXPIRE = 1;
+    const Groupon_RULE_STATUS_DOWN_ADMIN = 2;
+
+
+    const Groupon_STATUS_NONE = 0;
+    const Groupon_STATUS_ON = 1;
+    const Groupon_STATUS_SUCCEED = 2;
+    const Groupon_STATUS_FAIL = 3;
+
 }

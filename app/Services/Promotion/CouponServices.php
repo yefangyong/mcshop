@@ -1,15 +1,15 @@
 <?php
 
 
-namespace App\Services\Coupon;
+namespace App\Services\Promotion;
 
 
 use App\CodeResponse;
 use App\Constant;
 use App\Exceptions\BusinessException;
 use App\Input\PageInput;
-use App\Models\Coupon\Coupon;
-use App\Models\Coupon\CouponUser;
+use App\Models\Promotion\Coupon;
+use App\Models\Promotion\CouponUser;
 use App\Services\BaseServices;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

@@ -6,8 +6,8 @@ use App\CodeResponse;
 use App\Constant;
 use App\Exceptions\BusinessException;
 use App\Input\PageInput;
-use App\Models\Coupon\CouponUser;
-use App\Services\Coupon\CouponServices;
+use App\Models\Promotion\CouponUser;
+use App\Services\Promotion\CouponServices;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 
