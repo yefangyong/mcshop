@@ -2,10 +2,11 @@
 
 namespace App\Providers;
 
+use App\Listeners\DBSqlListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -18,6 +19,10 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        //注册sql执行监听器
+        QueryExecuted::class => [
+            DBSqlListener::class
+        ]
     ];
 
     /**
@@ -28,7 +33,5 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-
-        //
     }
 }
