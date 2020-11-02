@@ -23,10 +23,13 @@ class CategoryController extends WxController
         } else {
             $currentCategory = $categoryList->where('id', $id)->first();
         }
+
         $currentSubCategory = null;
+
         if (!is_null($currentCategory)) {
             $currentSubCategory = CategoryServices::getInstance()->getL2ListDataByPid($currentCategory->id);
         }
+
         return $this->success(compact('currentCategory', 'categoryList', 'currentSubCategory'));
     }
 

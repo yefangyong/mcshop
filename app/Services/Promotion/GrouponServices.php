@@ -24,6 +24,11 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class GrouponServices extends BaseServices
 {
+    /**
+     * @param $orderId
+     * @throws BusinessException
+     * 支付团购订单
+     */
     public function payGrouponOrder($orderId)
     {
         $groupon = $this->getGrouponByOrderId($orderId);

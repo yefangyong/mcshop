@@ -65,6 +65,15 @@ class GoodsServices extends BaseServices
 
     /**
      * @param $id
+     * @return GoodsProduct|GoodsProduct[]|Builder|Builder[]|Collection|Model|null
+     * 根据产品的ID获取产品信息
+     */
+    public function getGoodsProductById($id) {
+        return GoodsProduct::query()->find($id);
+    }
+
+    /**
+     * @param $id
      * @return Builder[]|Collection|\Illuminate\Support\Collection
      * 获取产品的规格
      */

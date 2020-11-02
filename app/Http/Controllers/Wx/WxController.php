@@ -63,6 +63,25 @@ class WxController extends Controller
         ];
     }
 
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     * 401
+     */
+    protected function badArgument()
+    {
+        return $this->fail(CodeResponse::PARAM_ILLEGAL);
+    }
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     * 402
+     */
+    protected function badArgumentValue()
+    {
+        return $this->fail(CodeResponse::PARAM_NOT_EMPTY);
+    }
+
+
     private function codeReturn($codeResponse, $data = null, $info = '')
     {
         list($errno, $errmsg) = $codeResponse;
