@@ -16,6 +16,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Intervention\Image\AbstractFont;
 use Intervention\Image\Facades\Image;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -53,16 +55,22 @@ class GrouponServices extends BaseServices
      */
     public function createGroupShareImage(GrouponRules $rules)
     {
-        $shareUrl   = 'http://127.0.0.1/test/'.$rules->goods_id;
+        $shareUrl   = \route('home.redirectShareUrl', ['type' => 'groupon', 'id' => $rules->goods_id]);
         $qrcode     = QrCode::format('png')->margin(1)->size(290)->generate($shareUrl);
         $goodsImage = Image::make($rules->pic_url)->resize(660, 660);
-        $image      = Image::make(resource_path('/images/back_groupon.png'))->insert($qrcode, 'top-left', 460, 770)
-            ->insert($goodsImage, 'top-left', 71, 69)->text($rules->goods_name, 65, 867, function (AbstractFont $font) {
+
+        $image = Image::make(resource_path('/images/back_groupon.png'))
+            ->insert($qrcode, 'top-left', 460, 770)
+            ->insert($goodsImage, 'top-left', 71, 69)
+            ->text($rules->goods_name, 65, 867, function (AbstractFont $font) {
                 $font->color(array(167, 136, 69));
                 $font->file(resource_path('ttf/msyh.ttf'));
                 $font->size(28);
             });
-        return $image->encode();
+
+        $filePath = 'groupon/'.Carbon::now()->toDateString().'/'.Str::random().'.png';
+        Storage::disk('public')->put($filePath, $image->encode());
+        return Storage::url($filePath);
     }
 
     /**

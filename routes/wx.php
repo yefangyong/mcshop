@@ -31,3 +31,5 @@ Route::get('coupon/receive', 'CouponController@receive');
 //商品模块--团购
 Route::get('groupon/list', 'GrouponController@list');
 Route::get('groupon/test', 'GrouponController@test');
+
+Route::get('home/redirectShareUrl', 'HomeController@redirectShareUrl')->name('home.redirectShareUrl');

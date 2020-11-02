@@ -21,7 +21,8 @@ class GrouponController extends WxController
     public function test() {
         $groupRule = GrouponServices::getInstance()->getGrouponRuleById(1);
         $resp = GrouponServices::getInstance()->createGroupShareImage($groupRule);
-        return response()->make($resp)->header('Content-Type', 'image/png');
+        echo $resp;
+        //return response()->make($resp)->header('Content-Type', 'image/png');
     }
 
     /**
