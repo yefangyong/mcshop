@@ -16,6 +16,14 @@ use Illuminate\Http\Request;
 
 class GrouponController extends WxController
 {
+    public $except = ['test'];
+
+    public function test() {
+        $groupRule = GrouponServices::getInstance()->getGrouponRuleById(1);
+        $resp = GrouponServices::getInstance()->createGroupShareImage($groupRule);
+        return response()->make($resp)->header('Content-Type', 'image/png');
+    }
+
     /**
      * @return JsonResponse
      * @throws BusinessException

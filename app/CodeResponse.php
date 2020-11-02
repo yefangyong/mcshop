@@ -42,10 +42,10 @@ class CodeResponse
     const ORDER_COMMENTED         = [726, ''];
     const ORDER_COMMENT_EXPIRED   = [727, ''];
 
-    const GROUPON_EXPIRED = [730, ''];
-    const GROUPON_OFFLINE = [731, ''];
-    const GROUPON_FULL    = [732, ''];
-    const GROUPON_JOIN    = [733, ''];
+    const GROUPON_EXPIRED = [730, '团购已过期!'];
+    const GROUPON_OFFLINE = [731, '团购已下线!'];
+    const GROUPON_FULL    = [732, '参团人数已满!'];
+    const GROUPON_JOIN    = [733, '团购活动已经参加!'];
 
     const COUPON_EXCEED_LIMIT = [740, '优惠券已领完'];
     const COUPON_RECEIVE_FAIL = [741, ''];
