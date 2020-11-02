@@ -40,8 +40,26 @@ class GrouponServices extends BaseServices
 
         $groupon->status = Constant::Groupon_STATUS_ON;
         $isSuccess       = $groupon->save();
-        if (!$isSuccess) {
 
+        if (!$isSuccess) {
+            $this->throwBusinessException(CodeResponse::UPDATED_FAIL);
+        }
+
+        $joinCount = $this->countGrouponJoin($groupon->groupon_id);
+
+        //小于开团人数，直接返回
+        if ($joinCount < $rule->discount_member - 1) {
+            return;
+        }
+
+        //达到开团人数，修改团购表为团购成功，然后安排发货等操作
+        $row = Groupon::query()->where(function (Builder $builder) use ($groupon) {
+            return $builder->where('group_id', $groupon->groupon_id)
+                ->orWhere('id', $groupon);
+        })->update(['status' => Constant::Groupon_STATUS_SUCCEED]);
+
+        if ($row == 0) {
+            $this->throwBusinessException(CodeResponse::UPDATED_FAIL);
         }
     }
 
