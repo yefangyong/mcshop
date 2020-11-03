@@ -35,7 +35,8 @@ class CartServices extends BaseServices
      * @return Cart[]|Builder[]|Collection
      * 获取用户购物车的数据
      */
-    public function getCartList($userId) {
+    public function getCartList($userId)
+    {
         return Cart::query()->whereUserId($userId)->get();
     }
 
@@ -46,7 +47,8 @@ class CartServices extends BaseServices
      * @throws \Exception
      * 删除购物车商品
      */
-    public function delete($userId, $productIds) {
+    public function delete($userId, $productIds)
+    {
         return Cart::query()->where('user_id', $userId)->whereIn('product_id', $productIds)->delete();
     }
 
@@ -64,18 +66,13 @@ class CartServices extends BaseServices
     /**
      * @param $goodsId
      * @param $productId
-     * @param $number
-     * @param $userId
+     * @return array
      * @throws BusinessException
-     * 添加购物车
+     * 获取商品的信息
      */
-    public function add($goodsId, $productId, $number, $userId)
+    public function getGoodInfo($goodsId, $productId)
     {
         $goods = GoodsServices::getInstance()->getGoods($goodsId);
-
-        if ($number <= 0) {
-            $this->throwBusinessException();
-        }
 
         //1、判断商品是否存在或者下架
         if (is_null($goods) || !$goods->is_on_sale) {
@@ -88,20 +85,67 @@ class CartServices extends BaseServices
         if (is_null($goodProduct)) {
             $this->throwBusinessException();
         }
+        return [$goods, $goodProduct];
+    }
 
+    /**
+     * @param $goodProduct
+     * @param $num
+     * @return Cart|null
+     * @throws BusinessException
+     * 编辑购物车的数量
+     */
+    public function editCartNum($goodProduct, $num)
+    {
+        $cart = Cart::new();
+        if ($num > $goodProduct->number) {
+            $this->throwBusinessException(CodeResponse::GOODS_NO_STOCK);
+        }
+        $cart->number = $num;
+        $cart->save();
+        return $cart;
+    }
+
+    /**
+     * @param $goodsId
+     * @param $productId
+     * @param $number
+     * @param $userId
+     * @throws BusinessException
+     * 添加购物车
+     */
+    public function add($goodsId, $productId, $number, $userId)
+    {
+
+        list($goods, $goodProduct) = $this->getGoodInfo($goodsId, $productId);
         $cartProduct = CartServices::getInstance()->getCartProduct($userId, $productId, $goodsId);
-        $cart        = Cart::new();
 
-        //3、判断购物车中是否已经有数据
         if (is_null($cartProduct)) {
-            CartServices::getInstance()->newCart($userId, $goodProduct, $goods, $number);
+            return CartServices::getInstance()->newCart($userId, $goodProduct, $goods, $number);
         } else {
             $num = $number + $cartProduct->number;
-            if ($num > $goodProduct->number) {
-                $this->throwBusinessException(CodeResponse::GOODS_NO_STOCK);
-            }
-            $cart->number = $num;
-            $cart->save();
+           return  $this->editCartNum($goodProduct, $num);
+        }
+    }
+
+    /**
+     * @param $goodsId
+     * @param $productId
+     * @param $number
+     * @param $userId
+     * @return Cart|bool|null
+     * @throws BusinessException
+     * 立即购买
+     */
+    public function fastAdd($goodsId, $productId, $number, $userId)
+    {
+        list($goods, $goodProduct) = $this->getGoodInfo($goodsId, $productId);
+        $cartProduct = CartServices::getInstance()->getCartProduct($userId, $productId, $goodsId);
+
+        if (is_null($cartProduct)) {
+            return CartServices::getInstance()->newCart($userId, $goodProduct, $goods, $number);
+        } else {
+           return  $this->editCartNum($goodProduct, $number);
         }
     }
 

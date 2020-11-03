@@ -36,7 +36,7 @@ class CartController extends WxController
     /**
      * @return JsonResponse
      * @throws BusinessException
-     * 更新购物车
+     * 更新购物车的数据
      */
     public function update()
     {
@@ -85,12 +85,12 @@ class CartController extends WxController
     /**
      * @return JsonResponse
      * @throws BusinessException
-     *
+     * 修改购物车选中的状态
      */
     public function checked()
     {
         $productIds = $this->verifyArrayNotEmpty('productIds');
-        $isChecked = $this->verifyEnum('isChecked',null, [0, 1]);
+        $isChecked  = $this->verifyEnum('isChecked', null, [0, 1]);
         CartServices::getInstance()->updateCartChecked($this->userId(), $productIds, $isChecked === 1);
         $list = CartServices::getInstance()->getCartList($this->userId());
         return $this->success($list);
@@ -99,7 +99,7 @@ class CartController extends WxController
     /**
      * @return JsonResponse
      * @throws BusinessException
-     * 添加购物车
+     * 加入购物车
      */
     public function add()
     {
@@ -110,6 +110,24 @@ class CartController extends WxController
         CartServices::getInstance()->add($goodsId, $productId, $number, $userId);
         $count = CartServices::getInstance()->countCartProduct($userId);
         return $this->success($count);
+    }
+
+    /**
+     * @return JsonResponse
+     * @throws BusinessException
+     * 立即购买
+     * 和add方法的区别在于：
+     * 1. 如果购物车内已经存在购物车货品，前者的逻辑是数量添加，这里的逻辑是数量覆盖
+     * 2. 添加成功以后，前者的逻辑是返回当前购物车商品数量，这里的逻辑是返回对应购物车项的ID
+     */
+    public function fastAdd()
+    {
+        $goodsId   = $this->verifyId('goodsId');
+        $productId = $this->verifyId('productId');
+        $number    = $this->verifyInteger('number', 0);
+        $userId    = $this->userId();
+        $cart      = CartServices::getInstance()->fastAdd($goodsId, $productId, $number, $userId);
+        return $this->success($cart->id);
     }
 
     /**

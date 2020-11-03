@@ -34,6 +34,7 @@ Route::get('groupon/test', 'GrouponController@test');
 
 //订单模块--购物车
 Route::post('cart/add', 'CartController@add');
+Route::post('cart/fastadd', 'CartController@fastAdd');
 Route::get('cart/countProduct', 'CartController@countProduct');
 Route::post('cart/update', 'CartController@update');
 Route::post('cart/delete', 'CartController@delete');
