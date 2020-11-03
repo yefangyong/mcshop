@@ -21,6 +21,8 @@ class BaseModel extends Model
 {
     use BooleanSoftDeletes;
 
+    public static $instance = null;
+
     const CREATED_AT = 'add_time';
 
     public $defaultCasts = ['deleted' => 'boolean'];
@@ -33,7 +35,10 @@ class BaseModel extends Model
 
     public static function new()
     {
-        return new static();
+        if (is_null(self::$instance)) {
+            self::$instance = new static();
+        }
+        return self::$instance;
     }
 
     public function getTable()

@@ -93,7 +93,7 @@ class GoodsServices extends BaseServices
 
     /**
      * @param $id
-     * @return Builder|Builder[]|Collection|Model|null
+     * @return Builder|Builder[]|Collection|Model|null|Goods
      * 获取商品
      */
     public function getGoods($id)

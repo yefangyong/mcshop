@@ -26,8 +26,8 @@ class CartController extends WxController
      */
     public function add()
     {
-        $goodsId   = $this->verifyId('goods_id', 0);
-        $productId = $this->verifyId('productId', 0);
+        $goodsId   = $this->verifyId('goodsId');
+        $productId = $this->verifyId('productId');
         $number    = $this->verifyInteger('number', 0);
 
         if ($number <= 0) {
@@ -54,7 +54,7 @@ class CartController extends WxController
 
         //判断购物车中是否已经有数据
         if (is_null($cartProduct)) {
-            CartServices::getInstance()->newCart($userId, $goodProduct, $goodsId, $number);
+            CartServices::getInstance()->newCart($userId, $goodProduct, $goods, $number);
         } else {
             $num = $number + $cartProduct->number;
             if ($num > $goodProduct->number) {
@@ -65,7 +65,7 @@ class CartController extends WxController
         }
 
         $count = CartServices::getInstance()->countCartProduct($userId);
-        return $this->success(['count' => $count]);
+        return $this->success($count);
     }
 
     /**
