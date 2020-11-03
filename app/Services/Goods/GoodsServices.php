@@ -13,19 +13,22 @@ use App\Models\Goods\GoodsSpecification;
 use App\Models\Goods\Issue;
 use App\Services\BaseServices;
 use Carbon\Carbon;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class GoodsServices extends BaseServices
 {
+
+
+
     /**
      * @param $ids
      * @return Goods[]|Builder[]|Collection
      * 根据商品的id,获取商品的列表
      */
-    public function getGoodsListByIds($ids) {
+    public function getGoodsListByIds($ids)
+    {
         return Goods::query()->whereIn('id', $ids)->get();
     }
 
@@ -68,7 +71,8 @@ class GoodsServices extends BaseServices
      * @return GoodsProduct|GoodsProduct[]|Builder|Builder[]|Collection|Model|null
      * 根据产品的ID获取产品信息
      */
-    public function getGoodsProductById($id) {
+    public function getGoodsProductById($id)
+    {
         return GoodsProduct::query()->find($id);
     }
 

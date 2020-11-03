@@ -9,6 +9,19 @@ use Illuminate\Validation\Rule;
 
 trait ValidateRequest
 {
+
+    /**
+     * @param $key
+     * @param  null  $default
+     * @return array|mixed|null
+     * @throws BusinessException
+     * 验证数组
+     */
+    public function verifyArrayNotEmpty($key, $default = null)
+    {
+        return $this->verifyData($key, $default, 'array|min:1');
+    }
+
     /**
      * @param $key
      * @param  null  $default

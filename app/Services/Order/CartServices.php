@@ -10,12 +10,100 @@ use App\Models\Cart\Cart;
 use App\Models\Goods\Goods;
 use App\Models\Goods\GoodsProduct;
 use App\Services\BaseServices;
-use App\Tools\Logs;
+use App\Services\Goods\GoodsServices;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class CartServices extends BaseServices
 {
+    /**
+     * @param $userId
+     * @param $productIds
+     * @param $isChecked
+     * @return bool|int
+     * 修改购物车选中的状态
+     */
+    public function updateCartChecked($userId, $productIds, $isChecked)
+    {
+        return Cart::query()->whereUserId($userId)->whereIn('product_id',
+            $productIds)->update(['checked' => $isChecked]);
+    }
+
+    /**
+     * @param $userId
+     * @return Cart[]|Builder[]|Collection
+     * 获取用户购物车的数据
+     */
+    public function getCartList($userId) {
+        return Cart::query()->whereUserId($userId)->get();
+    }
+
+    /**
+     * @param $userId
+     * @param $productIds
+     * @return bool|int|mixed|null
+     * @throws \Exception
+     * 删除购物车商品
+     */
+    public function delete($userId, $productIds) {
+        return Cart::query()->where('user_id', $userId)->whereIn('product_id', $productIds)->delete();
+    }
+
+    /**
+     * @param $cartId
+     * @param  string[]  $column
+     * @return Cart|Cart[]|Builder|Builder[]|Collection|Model|null
+     * 获取购物车的数据
+     */
+    public function getCartDataById($cartId, $column = ['*'])
+    {
+        return Cart::query()->find($cartId, $column);
+    }
+
+    /**
+     * @param $goodsId
+     * @param $productId
+     * @param $number
+     * @param $userId
+     * @throws BusinessException
+     * 添加购物车
+     */
+    public function add($goodsId, $productId, $number, $userId)
+    {
+        $goods = GoodsServices::getInstance()->getGoods($goodsId);
+
+        if ($number <= 0) {
+            $this->throwBusinessException();
+        }
+
+        //1、判断商品是否存在或者下架
+        if (is_null($goods) || !$goods->is_on_sale) {
+            $this->throwBusinessException(CodeResponse::GOODS_UNSHELVE);
+        }
+
+        $goodProduct = GoodsServices::getInstance()->getGoodsProductById($productId);
+
+        //2、判断产品是否存在
+        if (is_null($goodProduct)) {
+            $this->throwBusinessException();
+        }
+
+        $cartProduct = CartServices::getInstance()->getCartProduct($userId, $productId, $goodsId);
+        $cart        = Cart::new();
+
+        //3、判断购物车中是否已经有数据
+        if (is_null($cartProduct)) {
+            CartServices::getInstance()->newCart($userId, $goodProduct, $goods, $number);
+        } else {
+            $num = $number + $cartProduct->number;
+            if ($num > $goodProduct->number) {
+                $this->throwBusinessException(CodeResponse::GOODS_NO_STOCK);
+            }
+            $cart->number = $num;
+            $cart->save();
+        }
+    }
 
     /**
      * @param $userId
