@@ -9,10 +9,13 @@ use App\Input\PageInput;
 use App\Models\Cart\Cart;
 use App\Models\Goods\Goods;
 use App\Models\Goods\GoodsProduct;
+use App\Models\Promotion\Coupon;
 use App\Models\Promotion\CouponUser;
 use App\Services\Goods\GoodsServices;
 use App\Services\Order\CartServices;
 use App\Services\Promotion\CouponServices;
+use App\Services\SystemServices;
+use App\Services\User\AddressServices;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
@@ -20,6 +23,101 @@ use Illuminate\Support\Carbon;
 
 class CartController extends WxController
 {
+    /**
+     * @return JsonResponse
+     * @throws BusinessException
+     * 购物车下单
+     */
+    public function checkout()
+    {
+        $cartId       = $this->verifyInteger('cartId');
+        $addressId    = $this->verifyInteger('addressId');
+        $couponId     = $this->verifyInteger('couponId');
+        $groupRulesId = $this->verifyInteger('grouponRulesId');
+        $userCouponId = $this->verifyInteger('userCouponId');
+        $userId       = $this->userId();
+
+        //TODO 1、收货地址
+        $address   = AddressServices::getInstance()->getAddressOrDefault($userId, $addressId);
+        $addressId = $address->id ?? 0;
+
+        //TODO 2、获取商品的列表
+        $checkedGoodsList = CartServices::getInstance()->getCheckedGoodsList($userId, $cartId);
+
+        //TODO 3、团购优惠和商品价格
+        $grouponPrice      = 0;
+        $checkedGoodsPrice = CartServices::getInstance()->getCartPriceCutGroupon($checkedGoodsList, $groupRulesId,
+            $grouponPrice);
+
+        //TODO 4、获取当前适合价格的优惠券列表,并且根据优惠折扣降序排序
+        $availableCouponLength = 0;
+        $couponsUsers          = CouponServices::getInstance()->getUsableCoupons($userId);
+        $couponIds             = $couponsUsers->pluck('coupon_id')->toArray();
+        $coupons               = CouponServices::getInstance()->getCouponsByIds($couponIds)->keyBy('id');
+        $couponsUsers->filter(function (CouponUser $couponUser) use ($coupons, $checkedGoodsPrice) {
+            $coupon = $coupons->get($couponUser->coupon_id);
+            return CouponServices::getInstance()->checkCouponAndPrice($coupon, $couponUser, $checkedGoodsPrice);
+        })->sortByDesc(function (CouponUser $couponUser) use ($coupons) {
+            /** @var Coupon $coupon */
+            $coupon = $coupons->get($couponUser->coupon_id);
+            return $coupon->discount;
+        });
+
+        //TODO 5、选择优惠券
+        // 这里存在三种情况
+        // 1. 用户不想使用优惠券，则不处理
+        // 2. 用户想自动使用优惠券，则选择合适优惠券
+        // 3. 用户已选择优惠券，则测试优惠券是否合适
+        $couponPrice = 0;
+        if (is_null($couponId) || $couponId == -1) {
+            $userCouponId = -1;
+            $couponId     = -1;
+        } elseif ($couponId == 0) {
+            /** @var CouponUser $couponUser */
+            $couponUser   = $couponsUsers->first();
+            $couponId     = $couponUser->coupon_id ?? 0;
+            $userCouponId = $couponUser->id ?? 0;
+            $couponPrice  = CouponServices::getInstance()->getCoupon($couponId)->discount ?? 0;
+        } else {
+            $coupon     = CouponServices::getInstance()->getCoupon($couponId);
+            $couponUser = CouponServices::getInstance()->getCouponUser($userCouponId);
+            $isValid    = CouponServices::getInstance()->checkCouponAndPrice($coupon, $couponUser, $checkedGoodsPrice);
+            if ($isValid) {
+                $couponPrice = $coupon->discount ?? 0;
+            }
+        }
+
+        //TODO 6、运费
+        $freightPrice    = 0;
+        $freightPriceMin = SystemServices::getInstance()->getFreightMin();
+        if (bccomp($freightPriceMin, $checkedGoodsPrice) == 1) {
+            $freightPrice = SystemServices::getInstance()->getFreightValue();
+        }
+
+        //TODO 7、计算订单金额
+        $orderPrice = bcadd($checkedGoodsPrice, $freightPrice, 1);
+        $orderPrice = bcsub($orderPrice, $couponPrice, 1);
+
+        //TODO 8、组装数据，返回
+        return $this->success([
+            "addressId"             => $addressId,
+            "couponId"              => $couponId,
+            "userCouponId"          => $userCouponId,
+            "cartId"                => $cartId,
+            "grouponRulesId"        => $groupRulesId,
+            "grouponPrice"          => $grouponPrice,
+            "checkedAddress"        => $address,
+            "availableCouponLength" => $couponsUsers->count(),
+            "goodsTotalPrice"       => $checkedGoodsPrice,
+            "freightPrice"          => (int) $freightPrice,
+            "couponPrice"           => $couponPrice,
+            "orderTotalPrice"       => $orderPrice,
+            "actualPrice"           => $orderPrice,
+            "checkedGoodsList"      => $checkedGoodsList->toArray(),
+        ]);
+
+    }
+
     /**
      * @return JsonResponse
      * @throws Exception
@@ -45,9 +143,9 @@ class CartController extends WxController
             'cartList'  => $list->toArray(),
             'cartTotal' => [
                 'goodsCount'         => $goodsCount,
-                'goodsAmount'        => (double)$goodsAmount,
+                'goodsAmount'        => (double) $goodsAmount,
                 'checkedGoodsCount'  => $checkedGoodsCount,
-                'checkedGoodsAmount' => (double)$checkedGoodsAmount
+                'checkedGoodsAmount' => (double) $checkedGoodsAmount
             ]
         ]);
     }

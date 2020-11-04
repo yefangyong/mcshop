@@ -19,6 +19,62 @@ use Illuminate\Database\Eloquent\Model;
 
 class CouponServices extends BaseServices
 {
+    /**
+     * @param  Coupon  $coupon
+     * @param  CouponUser  $couponUser
+     * @param $price
+     * @return bool
+     * 检查优惠券的有效性
+     */
+    public function checkCouponAndPrice(Coupon $coupon, CouponUser $couponUser, $price)
+    {
+        if (empty($couponUser) || empty($coupon)) {
+            return false;
+        }
+
+        if ($coupon->id != $couponUser->coupon_id) {
+            return false;
+        }
+
+        if ($coupon->status != Constant::COUPON_STATUS_NORMAL) {
+            return false;
+        }
+
+        if (bccomp($coupon->min, $price) == 1) {
+            return false;
+        }
+
+        $now = now();
+        switch ($coupon->time_type) {
+            case Constant::COUPON_TIME_TYPE_TIME:
+                $start_time = strtotime($coupon->start_time);
+                $end_time   = strtotime($coupon->end_time);
+                if (!($start_time < time() && $end_time > time())) {
+                    return false;
+                }
+                break;
+            case Constant::COUPON_TIME_TYPE_DAYS:
+                $expired = Carbon::parse($couponUser->add_time)->addDays($coupon->days);
+                if ($now->isAfter($expired)) {
+                    return false;
+                }
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param $userId
+     * @return CouponUser[]|Builder[]|Collection
+     * 获取用户可用的优惠券
+     */
+    public function getUsableCoupons($userId)
+    {
+        return CouponUser::query()->where('user_id', $userId)->where('status',
+            Constant::COUPON_USER_STATUS_USABLE)->get();
+    }
 
     /**
      * @param $couponId
@@ -120,12 +176,21 @@ class CouponServices extends BaseServices
 
     /**
      * @param $id
-     * @return Builder|Builder[]|Collection|Model|null
+     * @return Builder|Builder[]|Collection|Model|null|Coupon
      * 根据优惠券Id获取优惠券
      */
     public function getCoupon($id)
     {
         return Coupon::query()->find($id);
+    }
+
+    /**
+     * @param $id
+     * @return CouponUser|CouponUser[]|Builder|Builder[]|Collection|Model|null
+     * 获取用户优惠券
+     */
+    public function getCouponUser($id) {
+        return CouponUser::query()->find($id);
     }
 
 

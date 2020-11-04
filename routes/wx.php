@@ -40,5 +40,6 @@ Route::post('cart/update', 'CartController@update');
 Route::post('cart/delete', 'CartController@delete');
 Route::post('cart/checked', 'CartController@checked');
 Route::post('cart/index', 'CartController@index');
+Route::get('cart/checkout', 'CartController@checkout');
 
 Route::get('home/redirectShareUrl', 'HomeController@redirectShareUrl')->name('home.redirectShareUrl');

@@ -43,5 +43,7 @@ use App\Models\BaseModel;
  */
 class Cart extends BaseModel
 {
-
+    public $casts = [
+        'specifications' => 'array'
+    ];
 }

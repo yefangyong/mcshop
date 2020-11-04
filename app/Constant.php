@@ -31,6 +31,14 @@ class Constant
     const COUPON_TIME_TYPE_TIME = 1;
 
     /**
+     *用户优惠券
+     */
+    const COUPON_USER_STATUS_USABLE = 0;
+    const COUPON_USER_STATUS_USED = 1;
+    const COUPON_USER_STATUS_EXPIRED = 2;
+    const COUPON_USER_STATUS_OUT = 3;
+
+    /**
      *团购
      */
     const Groupon_RULE_STATUS_ON = 0;

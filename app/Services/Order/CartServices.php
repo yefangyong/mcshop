@@ -11,6 +11,7 @@ use App\Models\Goods\Goods;
 use App\Models\Goods\GoodsProduct;
 use App\Services\BaseServices;
 use App\Services\Goods\GoodsServices;
+use App\Services\Promotion\GrouponServices;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -18,6 +19,74 @@ use Illuminate\Database\Eloquent\Model;
 
 class CartServices extends BaseServices
 {
+    /**
+     * @param $checkGoodsLists
+     * @param $grouponRulesId
+     * @param $grouponPrice
+     * @return int|string
+     * 获取购物车商品减去团购规则优惠的价格
+     */
+    public function getCartPriceCutGroupon($checkGoodsLists, $grouponRulesId, &$grouponPrice) {
+        $grouponRules = GrouponServices::getInstance()->getGrouponRuleById($grouponRulesId);
+        $checkGoodsPrice = 0;
+        foreach ($checkGoodsLists as $cart) {
+            /** @var Cart $cart */
+            if ($grouponRules && $grouponRules->goods_id == $cart->goods_id) {
+                $grouponPrice = bcmul($grouponRules->discount, $cart->number,2);
+                $price = bcsub($cart->price, $grouponRules->discount, 2);
+            } else {
+                $price = $cart->price;
+            }
+            $price = bcmul($price, $cart->number, 2);
+            $checkGoodsPrice = bcadd($checkGoodsPrice, $price, 2);
+        }
+        return $checkGoodsPrice;
+    }
+
+
+    /**
+     * @param $userId
+     * @param  null  $cartId
+     * @return Cart[]|Builder[]|Collection|\Illuminate\Support\Collection|\think\Collection
+     * @throws BusinessException
+     * 获取用户购物车选中的商品
+     */
+    public function getCheckedGoodsList($userId, $cartId = null)
+    {
+        if (empty($cartId)) {
+            $checkedGoodsList = $this->getCheckedByUid($userId);
+        } else {
+            $list = $this->getCheckedByUidAndCartId($userId, $cartId);
+            if (is_null($list)) {
+                $this->throwBusinessException(CodeResponse::SYSTEM_ERROR);
+            }
+            $checkedGoodsList = collect($list);
+        }
+        return $checkedGoodsList;
+    }
+
+
+    /**
+     * @param $userId
+     * @param $cartId
+     * @return Cart|Builder|Model|object|null
+     */
+    public function getCheckedByUidAndCartId($userId, $cartId)
+    {
+        return Cart::query()->where('user_id', $userId)->where('id', $cartId)->first();
+    }
+
+    /**
+     * @param $userId
+     * @return Cart[]|Builder[]|Collection
+     * 获取用户选择的购物车商品
+     */
+    public function getCheckedByUid($userId)
+    {
+        return Cart::query()->whereChecked(1)->whereUserId($userId)->get();
+    }
+
+
     /**
      * @param $userId
      * @param $productIds
@@ -53,7 +122,7 @@ class CartServices extends BaseServices
         $goodIds        = $lists->pluck('goods_id')->toArray();
         $inValidCartIds = [];
         $goodsList      = GoodsServices::getInstance()->getGoodsListByIds($goodIds)->keyBy('id');
-        $lists = $lists->filter(function (Cart $listItem) use ($goodsList, &$inValidCartIds) {
+        $lists          = $lists->filter(function (Cart $listItem) use ($goodsList, &$inValidCartIds) {
             /** @var Goods $good */
             $good    = $goodsList->get($listItem->goods_id);
             $isValid = !empty($good) && $good->is_on_sale;

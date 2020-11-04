@@ -21,7 +21,7 @@ abstract class TestCase extends BaseTestCase
         $this->assertLitemallApi($url, 'post', $data, $ignore);
     }
 
-    private function assertLitemallApi($url, $method = 'get', $data = [], $ignore = [])
+    public function assertLitemallApi($url, $method = 'get', $data = [], $ignore = [])
     {
         $client = new Client();
         if ($method == 'get') {
@@ -49,7 +49,7 @@ abstract class TestCase extends BaseTestCase
         $this->assertEquals($content2, $content1);
     }
 
-    public function getAuthHeader($username = 'yfy', $password = '123')
+    public function getAuthHeader($username = 'user123', $password = '123')
     {
         $response    = $this->post('/wx/auth/login', ['username' => $username, 'password' => $password]);
         $content     = $response->getOriginalContent();
