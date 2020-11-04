@@ -11,6 +11,7 @@ use App\Models\Goods\Goods;
 use App\Models\Goods\GoodsProduct;
 use App\Services\BaseServices;
 use App\Services\Goods\GoodsServices;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -42,9 +43,45 @@ class CartServices extends BaseServices
 
     /**
      * @param $userId
+     * @return Cart[]|Builder[]|Collection
+     * @throws Exception
+     * 获取有效购物车的数据
+     */
+    public function getValidCartList($userId)
+    {
+        $lists          = $this->getCartList($userId);
+        $goodIds        = $lists->pluck('goods_id')->toArray();
+        $inValidCartIds = [];
+        $goodsList      = GoodsServices::getInstance()->getGoodsListByIds($goodIds)->keyBy('id');
+        $lists = $lists->filter(function (Cart $listItem) use ($goodsList, &$inValidCartIds) {
+            /** @var Goods $good */
+            $good    = $goodsList->get($listItem->goods_id);
+            $isValid = !empty($good) && $good->is_on_sale;
+            if (!$isValid) {
+                $inValidCartIds[] = $listItem->id;
+            }
+            return $isValid;
+        });
+        $this->deleteCartListByIds($inValidCartIds);
+        return $lists;
+    }
+
+    /**
+     * @param $cartIds
+     * @return bool|int|mixed|null
+     * @throws Exception
+     * 批量删除购物车的数据
+     */
+    public function deleteCartListByIds($cartIds)
+    {
+        return Cart::query()->whereIn('id', $cartIds)->delete();
+    }
+
+    /**
+     * @param $userId
      * @param $productIds
      * @return bool|int|mixed|null
-     * @throws \Exception
+     * @throws Exception
      * 删除购物车商品
      */
     public function delete($userId, $productIds)
@@ -124,7 +161,7 @@ class CartServices extends BaseServices
             return CartServices::getInstance()->newCart($userId, $goodProduct, $goods, $number);
         } else {
             $num = $number + $cartProduct->number;
-           return  $this->editCartNum($goodProduct, $num);
+            return $this->editCartNum($goodProduct, $num);
         }
     }
 
@@ -145,7 +182,7 @@ class CartServices extends BaseServices
         if (is_null($cartProduct)) {
             return CartServices::getInstance()->newCart($userId, $goodProduct, $goods, $number);
         } else {
-           return  $this->editCartNum($goodProduct, $number);
+            return $this->editCartNum($goodProduct, $number);
         }
     }
 

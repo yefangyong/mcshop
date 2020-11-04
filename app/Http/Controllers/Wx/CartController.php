@@ -13,15 +13,48 @@ use App\Models\Promotion\CouponUser;
 use App\Services\Goods\GoodsServices;
 use App\Services\Order\CartServices;
 use App\Services\Promotion\CouponServices;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 
 
 class CartController extends WxController
 {
+    /**
+     * @return JsonResponse
+     * @throws Exception
+     * 购物车信息
+     */
+    public function index()
+    {
+        $list               = CartServices::getInstance()->getValidCartList($this->userId());
+        $goodsCount         = 0;
+        $goodsAmount        = 0;
+        $checkedGoodsCount  = 0;
+        $checkedGoodsAmount = 0;
+        foreach ($list as $item) {
+            $goodsCount  += $item->number;
+            $amount      = bcmul($item->number, $item->price, 2);
+            $goodsAmount = bcadd($goodsAmount, $amount, 2);
+            if ($item->checked) {
+                $checkedGoodsCount  += $item->number;
+                $checkedGoodsAmount = bcadd($checkedGoodsAmount, $amount, 2);
+            }
+        }
+        return $this->success([
+            'cartList'  => $list->toArray(),
+            'cartTotal' => [
+                'goodsCount'         => $goodsCount,
+                'goodsAmount'        => (double)$goodsAmount,
+                'checkedGoodsCount'  => $checkedGoodsCount,
+                'checkedGoodsAmount' => (double)$checkedGoodsAmount
+            ]
+        ]);
+    }
 
     /**
      * @return JsonResponse
+     * @throws BusinessException
      * 删除购物车
      */
     public function delete()
@@ -29,8 +62,7 @@ class CartController extends WxController
         $productIds = $this->verifyArrayNotEmpty('productIds');
         $userId     = $this->userId();
         CartServices::getInstance()->delete($userId, $productIds);
-        $list = CartServices::getInstance()->getCartList($userId);
-        return $this->success($list);
+        return $this->index();
     }
 
     /**
@@ -92,8 +124,7 @@ class CartController extends WxController
         $productIds = $this->verifyArrayNotEmpty('productIds');
         $isChecked  = $this->verifyEnum('isChecked', null, [0, 1]);
         CartServices::getInstance()->updateCartChecked($this->userId(), $productIds, $isChecked === 1);
-        $list = CartServices::getInstance()->getCartList($this->userId());
-        return $this->success($list);
+        return $this->index();
     }
 
     /**
