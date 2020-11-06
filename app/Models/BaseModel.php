@@ -35,10 +35,7 @@ class BaseModel extends Model
 
     public static function new()
     {
-        if (is_null(self::$instance)) {
-            self::$instance = new static();
-        }
-        return self::$instance;
+        return new static();
     }
 
     public function getTable()

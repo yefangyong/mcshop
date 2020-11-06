@@ -26,18 +26,19 @@ class CartServices extends BaseServices
      * @return int|string
      * 获取购物车商品减去团购规则优惠的价格
      */
-    public function getCartPriceCutGroupon($checkGoodsLists, $grouponRulesId, &$grouponPrice) {
-        $grouponRules = GrouponServices::getInstance()->getGrouponRuleById($grouponRulesId);
+    public function getCartPriceCutGroupon($checkGoodsLists, $grouponRulesId, &$grouponPrice)
+    {
+        $grouponRules    = GrouponServices::getInstance()->getGrouponRuleById($grouponRulesId);
         $checkGoodsPrice = 0;
         foreach ($checkGoodsLists as $cart) {
             /** @var Cart $cart */
             if ($grouponRules && $grouponRules->goods_id == $cart->goods_id) {
-                $grouponPrice = bcmul($grouponRules->discount, $cart->number,2);
-                $price = bcsub($cart->price, $grouponRules->discount, 2);
+                $grouponPrice = bcmul($grouponRules->discount, $cart->number, 2);
+                $price        = bcsub($cart->price, $grouponRules->discount, 2);
             } else {
                 $price = $cart->price;
             }
-            $price = bcmul($price, $cart->number, 2);
+            $price           = bcmul($price, $cart->number, 2);
             $checkGoodsPrice = bcadd($checkGoodsPrice, $price, 2);
         }
         return $checkGoodsPrice;
@@ -53,7 +54,7 @@ class CartServices extends BaseServices
      */
     public function getCheckedGoodsList($userId, $cartId = null)
     {
-        if (empty($cartId)) {
+        if (empty($cartId) || is_null($cartId)) {
             $checkedGoodsList = $this->getCheckedByUid($userId);
         } else {
             $list = $this->getCheckedByUidAndCartId($userId, $cartId);

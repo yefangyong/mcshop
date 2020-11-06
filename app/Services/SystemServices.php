@@ -34,6 +34,21 @@ class SystemServices extends BaseServices
     const LITEMALL_MALL_LONGITUDE = "litemall_mall_longitude";
     const LITEMALL_MALL_Latitude  = "litemall_mall_latitude";
 
+    /**
+     * @param $checkedGoodsPrice
+     * @return int
+     * 获取运费
+     */
+    public function getFreightPrice($checkedGoodsPrice)
+    {
+        $freightPrice    = 0;
+        $freightPriceMin = SystemServices::getInstance()->getFreightMin();
+        if (bccomp($freightPriceMin, $checkedGoodsPrice) == 1) {
+            $freightPrice = SystemServices::getInstance()->getFreightValue();
+        }
+        return $freightPrice;
+    }
+
     public function getFreightValue()
     {
         return $this->get(self::LITEMALL_EXPRESS_FREIGHT_VALUE);

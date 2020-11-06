@@ -59,4 +59,27 @@ $factory->define(\App\Models\Goods\GoodsSpecification::class, function (Faker $f
     ];
 });
 
+$factory->define(\App\Models\Promotion\GrouponRules::class, function () {
+   return  [
+       'goods_id' => 0,
+       'goods_name' => '',
+       'pic_url' => '',
+       'discount' => 0,
+       'discount_member' => 2,
+       'expire_time' => now()->addDays(10)->toDateTimeString()
+   ];
+});
+
+$factory->state(\App\Models\Goods\GoodsProduct::class, 'groupon',function () {
+    return [];
+})->afterCreatingState(\App\Models\Goods\GoodsProduct::class, 'groupon', function (\App\Models\Goods\GoodsProduct $product) {
+    $good = \App\Services\Goods\GoodsServices::getInstance()->getGoods($product->goods_id);
+    factory(\App\Models\Promotion\GrouponRules::class)->create([
+        'goods_id' => $product->goods_id,
+        'goods_name' => $good->name,
+        'pic_url' => $good->pic_url,
+        'discount' => 2
+    ]);
+});
+
 

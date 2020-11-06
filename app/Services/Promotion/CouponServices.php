@@ -77,6 +77,53 @@ class CouponServices extends BaseServices
     }
 
     /**
+     * @param $userId
+     * @param $checkedGoodsPrice
+     * @param $couponId
+     * @param $userCouponId
+     * @return array
+     * 获取合适的优惠券
+     */
+    public function getUserMeetCoupons($userId, $checkedGoodsPrice, $couponId, $userCouponId)
+    {
+        $couponsUsers = CouponServices::getInstance()->getUsableCoupons($userId);
+        $couponIds    = $couponsUsers->pluck('coupon_id')->toArray();
+        $coupons      = CouponServices::getInstance()->getCouponsByIds($couponIds)->keyBy('id');
+        $couponsUsers = $couponsUsers->filter(function (CouponUser $couponUser) use ($coupons, $checkedGoodsPrice) {
+            $coupon = $coupons->get($couponUser->coupon_id);
+            return CouponServices::getInstance()->checkCouponAndPrice($coupon, $couponUser, $checkedGoodsPrice);
+        })->sortByDesc(function (CouponUser $couponUser) use ($coupons) {
+            /** @var Coupon $coupon */
+            $coupon = $coupons->get($couponUser->coupon_id);
+            return $coupon->discount;
+        });
+
+        // 这里存在三种情况
+        // 1. 用户不想使用优惠券，则不处理
+        // 2. 用户想自动使用优惠券，则选择合适优惠券
+        // 3. 用户已选择优惠券，则测试优惠券是否合适
+        $couponPrice = 0;
+        if (is_null($couponId) || $couponId == -1) {
+            $userCouponId = -1;
+            $couponId     = -1;
+        } elseif ($couponId == 0) {
+            /** @var CouponUser $couponUser */
+            $couponUser   = $couponsUsers->first();
+            $couponId     = $couponUser->coupon_id ?? 0;
+            $userCouponId = $couponUser->id ?? 0;
+            $couponPrice  = CouponServices::getInstance()->getCoupon($couponId)->discount ?? 0;
+        } else {
+            $coupon     = CouponServices::getInstance()->getCoupon($couponId);
+            $couponUser = CouponServices::getInstance()->getCouponUser($userCouponId);
+            $isValid    = CouponServices::getInstance()->checkCouponAndPrice($coupon, $couponUser, $checkedGoodsPrice);
+            if ($isValid) {
+                $couponPrice = $coupon->discount ?? 0;
+            }
+        }
+        return [$couponId, $userCouponId, $couponPrice, $couponsUsers->count() ?? 0];
+    }
+
+    /**
      * @param $couponId
      * @param $userId
      * @throws BusinessException
@@ -189,7 +236,8 @@ class CouponServices extends BaseServices
      * @return CouponUser|CouponUser[]|Builder|Builder[]|Collection|Model|null
      * 获取用户优惠券
      */
-    public function getCouponUser($id) {
+    public function getCouponUser($id)
+    {
         return CouponUser::query()->find($id);
     }
 
