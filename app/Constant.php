@@ -49,4 +49,19 @@ class Constant
     const Groupon_STATUS_SUCCEED = 2;
     const Groupon_STATUS_FAIL = 3;
 
+    /**
+     * 订单状态
+     */
+    const ORDER_STATUS_CREATE = 101;
+    const ORDER_STATUS_PAY = 201;
+    const ORDER_STATUS_SHIP = 301;
+    const ORDER_STATUS_CONFIRM = 401;
+    const ORDER_STATUS_CANCEL = 102;
+    const ORDER_STATUS_AUTO_CANCEL = 103;
+    const ORDER_STATUS_ADMIN_CANCEL = 104;
+    const ORDER_STATUS_REFUND = 202;
+    const ORDER_STATUS_REFUND_CONFIRM = 203;
+    const ORDER_STATUS_GROUPON_TIMEOUT = 204;
+    const ORDER_STATUS_AUTO_CONFIRM = 402;
+
 }

@@ -20,6 +20,30 @@ use Illuminate\Database\Eloquent\Model;
 class GoodsServices extends BaseServices
 {
 
+    /**
+     * @param $productId
+     * @param $num
+     * @return int
+     * 减库存
+     */
+    public function reduceStock($productId, $num)
+    {
+        return GoodsProduct::query()->where('id', $productId)->where('number', '>=', $num)->decrement('number', $num);
+    }
+
+    /**
+     * @param $productId
+     * @param $num
+     * @return int
+     * 加库存 使用乐观锁
+     */
+    public function addStock($productId, $num)
+    {
+        /** @var GoodsProduct $product */
+        $product = $this->getGoodsProductById($productId);
+        $product->number = $product->number + $num;
+        return $product->cas();
+    }
 
 
     /**
@@ -74,6 +98,16 @@ class GoodsServices extends BaseServices
     public function getGoodsProductById($id)
     {
         return GoodsProduct::query()->find($id);
+    }
+
+    /**
+     * @param  array  $ids
+     * @return GoodsProduct[]|Builder[]|Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection
+     * 批量获取产品
+     */
+    public function getGoodsProductsByIds(array $ids)
+    {
+        return GoodsProduct::query()->whereIn('id', $ids)->get();
     }
 
     /**

@@ -25,3 +25,26 @@ $factory->define(\App\Models\User\User::class, function (Faker $faker) {
         'avatar'   => $faker->imageUrl()
     ];
 });
+
+$factory->define(\App\Models\User\Address::class, function (Faker $faker) {
+    return [
+        'user_id'        => 0,
+        'province'       => '安徽省',
+        'city'           => '六安市',
+        'county'        => '舒城县',
+        'address_detail' => $faker->streetAddress,
+        'area_code'      => '',
+        'postal_code'    => $faker->postcode,
+        'tel'            => $faker->phoneNumber,
+        'is_default'     => 0
+    ];
+});
+
+$factory->state(\App\Models\User\User::class, 'address_default', function () {
+    return [];
+})->afterCreatingState(\App\Models\User\User::class, 'address_default', function ($user) {
+    factory(\App\Models\User\Address::class)->create([
+        'user_id'    => $user->id,
+        'is_default' => 1
+    ]);
+});

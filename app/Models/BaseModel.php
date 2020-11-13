@@ -61,4 +61,21 @@ class BaseModel extends Model
     {
         return Carbon::instance($date)->toDateTimeString();
     }
+
+    /**
+     * @return bool|int
+     * 乐观锁的实现，修改数据之前先比较一下 compare and save
+     */
+    public function cas()
+    {
+        $dirty    = $this->getDirty(); //内存中修改的值
+        $updateAt = $this->getUpdatedAtColumn(); //更新数据之前，判断一下更新时间有没有改变
+        $query    = self::query()->where($this->getKeyName(), $this->getKey())->where($updateAt, $this->{$updateAt});
+
+        foreach ($dirty as $k => $v) {
+            $query = $query->where($k, $this->getOriginal($k));  //判断一下更新的字段值是否有改动
+        }
+
+        return $query->update($dirty);
+    }
 }

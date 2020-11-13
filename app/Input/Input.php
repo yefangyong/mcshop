@@ -4,6 +4,7 @@ namespace App\Input;
 
 use App\CodeResponse;
 use App\Exceptions\BusinessException;
+use App\Models\Order\OrderGoods;
 use App\ValidateRequest;
 use Illuminate\Support\Facades\Validator;
 
@@ -26,7 +27,7 @@ class Input
         if ($validate->fails()) {
             throw new BusinessException(CodeResponse::PARAM_NOT_EMPTY);
         }
-        $map = get_object_vars($this);
+        $map  = get_object_vars($this);
         $keys = array_keys($map);
         collect($data)->map(function ($v, $k) use ($keys) {
             if (in_array($k, $keys)) {
@@ -42,11 +43,12 @@ class Input
     }
 
     /**
-     * @return Input | GoodsListInput | PageInput
+     * @param  null  $data
+     * @return Input | OrderGoodsSubmit
      * @throws BusinessException
      */
-    public static function new()
+    public static function new($data = null)
     {
-        return (new static())->fill();
+        return (new static())->fill($data);
     }
 }

@@ -41,5 +41,11 @@ Route::post('cart/delete', 'CartController@delete');
 Route::post('cart/checked', 'CartController@checked');
 Route::post('cart/index', 'CartController@index');
 Route::get('cart/checkout', 'CartController@checkout');
+Route::get('cart/checkout', 'CartController@checkout');
+
+//订单模块--订单
+Route::any('order/submit', 'OrderController@submit');
+Route::any('order/cancel', 'OrderController@cancel');
+
 
 Route::get('home/redirectShareUrl', 'HomeController@redirectShareUrl')->name('home.redirectShareUrl');

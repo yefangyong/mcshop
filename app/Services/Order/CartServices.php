@@ -20,6 +20,22 @@ use Illuminate\Database\Eloquent\Model;
 class CartServices extends BaseServices
 {
     /**
+     * @param $userId
+     * @param  null  $cartId
+     * @return bool|mixed|null
+     * @throws Exception
+     * 清空购物车
+     */
+    public function clearCartGoods($userId, $cartId = null)
+    {
+        if (empty($cartId)) {
+            return Cart::query()->where('user_id', $userId)->where('checked', 1)->delete();
+        } else {
+            return Cart::query()->where('id', $cartId)->where('user_id', $userId)->delete();
+        }
+    }
+
+    /**
      * @param $checkGoodsLists
      * @param $grouponRulesId
      * @param $grouponPrice

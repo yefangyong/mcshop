@@ -34,6 +34,16 @@ class SystemServices extends BaseServices
     const LITEMALL_MALL_LONGITUDE = "litemall_mall_longitude";
     const LITEMALL_MALL_Latitude  = "litemall_mall_latitude";
 
+
+    /**
+     * @return |null
+     * 获取超时未支付的时间配置
+     */
+    public function getUnPidTime()
+    {
+        return $this->get(self::LITEMALL_ORDER_UNPAID);
+    }
+
     /**
      * @param $checkedGoodsPrice
      * @return int
