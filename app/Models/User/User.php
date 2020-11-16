@@ -59,8 +59,6 @@ class User extends BaseModel implements AuthenticatableContract,
 {
     use Authenticatable, Authorizable, Notifiable;
 
-
-    public $timestamps = false;
     /**
      * The attributes that are mass assignable.
      *
@@ -95,5 +93,16 @@ class User extends BaseModel implements AuthenticatableContract,
             'iss'    => env('JWT_ISSUER'),
             'userId' => $this->getKey()
         ];
+    }
+
+    protected static function booted()
+    {
+        static::cased(function ($user) {
+            echo 'cased' . PHP_EOL;
+        });
+
+        static::casing(function ($user) {
+            echo 'casing' . PHP_EOL;
+        });
     }
 }

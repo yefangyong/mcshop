@@ -42,7 +42,13 @@ class DBSqlListener
             }, $bindings);
             $sql      = str_replace('?', '%s', $sql);
             $sql      = sprintf($sql, ...$bindings);
-            Log::info('sql log', ['sql' => $sql, 'time' => $time]);
+
+            if (app()->environment() == 'testing') {
+                echo $sql . PHP_EOL;
+            } else {
+                Log::info('sql log', ['sql' => $sql, 'time' => $time]);
+            }
+
         }
     }
 }
