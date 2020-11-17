@@ -44,7 +44,7 @@ class DBSqlListener
             $sql      = sprintf($sql, ...$bindings);
 
             if (app()->environment() == 'testing') {
-                echo $sql . PHP_EOL;
+                echo $sql . ' time:' . $time . PHP_EOL;
             } else {
                 Log::info('sql log', ['sql' => $sql, 'time' => $time]);
             }

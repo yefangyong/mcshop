@@ -59,8 +59,8 @@ class GrouponServices extends BaseServices
 
         //达到开团人数，修改团购表为团购成功，然后安排发货等操作
         $row = Groupon::query()->where(function (Builder $builder) use ($groupon) {
-            return $builder->where('group_id', $groupon->groupon_id)
-                ->orWhere('id', $groupon);
+            return $builder->where('groupon_id', $groupon->groupon_id)
+                ->orWhere('id', $groupon->id);
         })->update(['status' => Constant::Groupon_STATUS_SUCCEED]);
 
         if ($row == 0) {

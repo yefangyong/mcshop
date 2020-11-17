@@ -16,18 +16,22 @@ use App\Models\Order\Order;
 use App\Models\Order\OrderGoods;
 use App\Models\Order\OrderStatusTrait;
 use App\Models\Promotion\Coupon;
+use App\Notifications\NewPaidOrderEmailNotify;
+use App\Notifications\NewPaidOrderSmsNotify;
 use App\Services\BaseServices;
 use App\Services\Goods\GoodsServices;
 use App\Services\Promotion\CouponServices;
 use App\Services\Promotion\GrouponServices;
 use App\Services\SystemServices;
 use App\Services\User\AddressServices;
+use App\Services\User\UserServices;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -81,7 +85,7 @@ class OrderServices extends BaseServices
         $order->order_sn       = $this->generateOrderSn();
         $order->order_status   = Constant::ORDER_STATUS_CREATE;
         $order->consignee      = $address->name;
-        $order->address        = $address->province.$address->city.$address->county." ".$address->address_detail;
+        $order->address        = $address->province . $address->city . $address->county . " " . $address->address_detail;
         $order->message        = $input->message ?? " ";
         $order->goods_price    = $checkedGoodsPrice;
         $order->freight_price  = $freightPrice;
@@ -105,6 +109,199 @@ class OrderServices extends BaseServices
         //TODO 设置订单支付超时取消订单任务
         dispatch(new OverTimeCancelOrder($userId, $order->id));
         return $order;
+    }
+
+    /**
+     * @param $userId
+     * @param $orderId
+     * @param $shipSn
+     * @param $shipChannel
+     * @return Order|Order[]|Builder|Builder[]|Collection|Model|null
+     * @throws BusinessException
+     * @throws Throwable
+     * 订单发货
+     */
+    public function ship($userId, $orderId, $shipSn, $shipChannel)
+    {
+        $order = $this->getOrderByUserIdAndId($userId, $orderId);
+
+        if (empty($order)) {
+            $this->throwBusinessException();
+        }
+
+        if (!$order->canShipHandle()) {
+            $this->throwBusinessException(CodeResponse::ORDER_INVALID_OPERATION, '该订单不能发货');
+        }
+
+        $order->order_status = Constant::ORDER_STATUS_SHIP;
+        $order->ship_sn      = $shipSn;
+        $order->ship_channel = $shipChannel;
+        $order->ship_time    = now()->toDateTimeString();
+
+        if ($order->cas() == 0) {
+            $this->throwBusinessException(CodeResponse::UPDATED_FAIL);
+        }
+        //todo 发通知给用户
+        return $order;
+    }
+
+    /**
+     * @param  Order  $order
+     * @param $refundType
+     * @param $refundContent
+     * @return Order
+     * @throws BusinessException
+     * @throws Throwable
+     * 管理员同意退款
+     */
+    public function agreeRefund(Order $order, $refundType, $refundContent)
+    {
+        if (!$order->canAgreeRefundHandle()) {
+            $this->throwBusinessException(CodeResponse::ORDER_INVALID_OPERATION, '该订单不能同意退款');
+        }
+        $now                   = now()->toDateTimeString();
+        $order->order_status   = Constant::ORDER_STATUS_REFUND_CONFIRM;
+        $order->end_time       = $now;
+        $order->refund_amount  = $order->actual_price;
+        $order->refund_type    = $refundType;
+        $order->refund_content = $refundContent;
+        $order->refund_time    = $now;
+
+        if ($order->cas() == 0) {
+            $this->throwBusinessException(CodeResponse::UPDATED_FAIL);
+        }
+
+        //增加库存
+        $this->addProductStock($order->id);
+        return $order;
+    }
+
+    /**
+     * @param $orderId
+     * @return int
+     * 计算订单中商品的数量
+     */
+    private function countOrderGoods($orderId)
+    {
+        return OrderGoods::whereOrderId($orderId)->count(['id']);
+    }
+
+    /**
+     * @param $userId
+     * @param $orderId
+     * @param  false  $isAuto
+     * @return Order|Order[]|Builder|Builder[]|Collection|Model|null
+     * @throws BusinessException
+     * @throws Throwable
+     * 确认收货
+     */
+    public function confirm($userId, $orderId, $isAuto = false)
+    {
+        $order = $this->getOrderByUserIdAndId($userId, $orderId);
+
+        if (empty($order)) {
+            $this->throwBusinessException();
+        }
+
+        if (!$order->canConfirmHandle()) {
+            $this->throwBusinessException(CodeResponse::ORDER_INVALID_OPERATION, '该订单不能被确认收货');
+        }
+
+        $order->comments     = $this->countOrderGoods($orderId);
+        $order->order_status = $isAuto ? Constant::ORDER_STATUS_AUTO_CONFIRM : Constant::ORDER_STATUS_CONFIRM;
+        $order->confirm_time = now()->toDateTimeString();
+
+        if ($order->cas() == 0) {
+            $this->throwBusinessException(CodeResponse::UPDATED_FAIL);
+        }
+
+        return $order;
+    }
+
+    /**
+     * @param $userId
+     * @param $orderId
+     * @return bool
+     * @throws BusinessException
+     */
+    public function delete($userId, $orderId)
+    {
+        $order = $this->getOrderByUserIdAndId($userId, $orderId);
+
+        if (empty($order)) {
+            $this->throwBusinessException();
+        }
+
+        if (!$this->canDeleteHandle()) {
+            $this->throwBusinessException(CodeResponse::ORDER_INVALID_OPERATION, '该订单不能被删除哦');
+        }
+
+        $order->delete();
+
+        //todo 处理订单售后的信息
+        return true;
+    }
+
+    /**
+     * @param $userId
+     * @param $orderId
+     * @return Order|Order[]|Builder|Builder[]|Collection|Model|null
+     * @throws BusinessException
+     * @throws Throwable
+     * 用户退款
+     */
+    public function refund($userId, $orderId)
+    {
+        $order = $this->getOrderByUserIdAndId($userId, $orderId);
+
+        if (empty($order)) {
+            $this->throwBusinessException();
+        }
+
+        if (!$order->canRefundHandle()) {
+            $this->throwBusinessException(CodeResponse::ORDER_INVALID_OPERATION, '该订单不能申请退款哦');
+        }
+
+        $order->order_status = Constant::ORDER_STATUS_REFUND;
+
+        if ($order->cas() == 0) {
+            $this->throwBusinessException(CodeResponse::UPDATED_FAIL);
+        }
+        //todo 发通知给管理员进行退款处理
+        return $order;
+    }
+
+    /**
+     * @param  Order  $order
+     * @param $payId
+     * @throws BusinessException
+     * @throws Throwable
+     * 支付成功，处理订单
+     */
+    public function payOrder(Order $order, $payId)
+    {
+        if (!$order->canPayHandle()) {
+            $this->throwBusinessException(CodeResponse::ORDER_PAY_FAIL, '订单不能被支付');
+        }
+        $order->pay_id       = $payId;
+        $order->pay_time     = now()->toDateTimeString();
+        $order->order_status = Constant::ORDER_STATUS_PAY;
+        if ($order->cas() == 0) {
+            $this->throwBusinessException(CodeResponse::UPDATED_FAIL);
+        }
+
+        //处理团购订单
+        GrouponServices::getInstance()->payGrouponOrder($order->id);
+
+        //发送邮箱给管理员
+        Notification::route('mail', env('MAIL_USERNAME'))->notify(new NewPaidOrderEmailNotify($order->id));
+
+        //发送短信给用户--自行申请短信测试模板
+//        $code = random_int(100000, 999999);
+//        $user = UserServices::getInstance()->getUserById($order->user_id);
+//        $user->mobile = '18656275932';
+//        $user->notify(new NewPaidOrderSmsNotify($code, 'SMS_117526525'));
+        echo "订单处理成功";
     }
 
     /**
@@ -235,6 +432,18 @@ class OrderServices extends BaseServices
             $this->throwBusinessException(CodeResponse::UPDATED_FAIL);
         }
 
+        $this->addProductStock($orderId);
+
+        return true;
+    }
+
+    /**
+     * @param $orderId
+     * @throws BusinessException
+     * 增加产品的库存
+     */
+    public function addProductStock($orderId)
+    {
         $orderGoods = $this->getOrderGoodList($orderId);
         /** @var OrderGoods $orderGood */
         foreach ($orderGoods as $orderGood) {
@@ -243,7 +452,6 @@ class OrderServices extends BaseServices
                 $this->throwBusinessException(CodeResponse::UPDATED_FAIL);
             }
         }
-        return true;
     }
 
     /**
@@ -289,9 +497,9 @@ class OrderServices extends BaseServices
     {
         return retry(5, function () {
             $date    = date('YmdHis');
-            $orderSn = $date.Str::random(6);
+            $orderSn = $date . Str::random(6);
             if ($this->checkOrderSnValid($orderSn)) {
-                Log::warning("订单号获取失败：".$orderSn);
+                Log::warning("订单号获取失败：" . $orderSn);
                 $this->throwBusinessException(CodeResponse::FAIL, '订单号获取失败');
             }
             return $orderSn;

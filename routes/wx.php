@@ -46,6 +46,8 @@ Route::get('cart/checkout', 'CartController@checkout');
 //订单模块--订单
 Route::any('order/submit', 'OrderController@submit');
 Route::any('order/cancel', 'OrderController@cancel');
-
+Route::any('order/refund', 'OrderController@refund');
+Route::any('order/delete', 'OrderController@delete');
+Route::any('order/confirm', 'OrderController@confirm');
 
 Route::get('home/redirectShareUrl', 'HomeController@redirectShareUrl')->name('home.redirectShareUrl');

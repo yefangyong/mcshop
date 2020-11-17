@@ -105,4 +105,9 @@ class User extends BaseModel implements AuthenticatableContract,
             echo 'casing' . PHP_EOL;
         });
     }
+
+    public function routeNotificationForEasySms($driver, $notification = null)
+    {
+        return $this->mobile;
+    }
 }

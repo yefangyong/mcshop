@@ -34,6 +34,16 @@ class UserServices extends BaseServices
     }
 
     /**
+     * @param $id
+     * @return User|User[]|Builder|Builder[]|Collection|Model|null
+     * 根据用户ID,获取用户的信息
+     */
+    public function getUserById($id)
+    {
+        return User::query()->find($id);
+    }
+
+    /**
      * 根据用户名返回用户信息
      * @param $username
      * @return Builder|Model|object|null
@@ -61,10 +71,10 @@ class UserServices extends BaseServices
      */
     public function checkMobileSendCaptchaCount($mobile, $send_count)
     {
-        $countKey = 'register_captcha_count_'.$mobile;
+        $countKey = 'register_captcha_count_' . $mobile;
 
         if (Cache::has($countKey)) {
-            $count = Cache::increment('register_captcha_count_'.$mobile, 1);
+            $count = Cache::increment('register_captcha_count_' . $mobile, 1);
             if ($count > $send_count) {
                 return false;
             }
@@ -103,7 +113,7 @@ class UserServices extends BaseServices
      */
     public function checkCaptcha($mobile, $code)
     {
-        $key    = 'register_captcha_'.$mobile;
+        $key    = 'register_captcha_' . $mobile;
         $isPass = $code == Cache::get($key);
         if ($isPass) {
             Cache::forget($key);
@@ -122,7 +132,7 @@ class UserServices extends BaseServices
     public function setCaptcha(string $mobile)
     {
         $code = random_int(100000, 999999);
-        Cache::put('register_captcha_'.$mobile, $code, 600);
+        Cache::put('register_captcha_' . $mobile, $code, 600);
         return $code;
     }
 }
