@@ -6,6 +6,7 @@ use App\Models\Goods\GoodsProduct;
 use App\Models\User\User;
 use GuzzleHttp\Client;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Log;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -21,7 +22,7 @@ abstract class TestCase extends BaseTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->user    = factory(User::class)->create();
+        //$this->user    = factory(User::class)->create();
     }
 
     public function assertLitemallApiGet($url, $ignore = [])
@@ -62,10 +63,11 @@ abstract class TestCase extends BaseTestCase
         $this->assertEquals($content2, $content1);
     }
 
-    public function getAuthHeader($username = 'yfy', $password = '123')
+    public function getAuthHeader($username = '廖利', $password = '123456')
     {
         $response    = $this->post('/wx/auth/login', ['username' => $username, 'password' => $password]);
         $content     = $response->getOriginalContent();
+        Log::debug('content', $content);
         $token       = $content['data']['token'];
         $this->token = $token;
         return ['Authorization' => "Bearer {$token}"];

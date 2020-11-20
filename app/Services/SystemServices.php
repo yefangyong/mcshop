@@ -34,6 +34,14 @@ class SystemServices extends BaseServices
     const LITEMALL_MALL_LONGITUDE = "litemall_mall_longitude";
     const LITEMALL_MALL_Latitude  = "litemall_mall_latitude";
 
+    /**
+     * @return |null
+     * 获取超时未确认收货的时间
+     */
+    public function getUnConfirmOrderTime()
+    {
+        return $this->get(self::LITEMALL_ORDER_UNCONFIRM);
+    }
 
     /**
      * @return |null

@@ -7,6 +7,7 @@ use App\Constant;
 use App\Exceptions\BusinessException;
 use App\Input\OrderGoodsSubmit;
 use App\Input\PageInput;
+use App\Models\Order\Order;
 use App\Models\Promotion\CouponUser;
 use App\Services\Order\OrderServices;
 use App\Services\Promotion\CouponServices;
@@ -19,6 +20,23 @@ use Throwable;
 
 class OrderController extends WxController
 {
+
+    /**
+     * @return JsonResponse
+     * @throws BusinessException
+     */
+    public function detail() {
+        $orderId = $this->verifyId('orderId');
+        $detail = OrderServices::getInstance()->detail($this->userId(), $orderId);
+        return $this->success($detail);
+    }
+
+    /**
+     * @return JsonResponse
+     * @throws BusinessException
+     * @throws Throwable
+     * 提交订单
+     */
     public function submit()
     {
         /** @var OrderGoodsSubmit $input */

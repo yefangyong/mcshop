@@ -32,7 +32,7 @@ class CodeResponse
     const GOODS_UNKNOWN  = [712, ''];
     const GOODS_INVALID  = [713, ''];
 
-    const ORDER_UNKNOWN       = [720, ''];
+    const ORDER_UNKNOWN       = [720, '订单不存在'];
     const ORDER_INVALID       = [721, ''];
     const ORDER_CHECKOUT_FAIL = [722, ''];
     const ORDER_CANCEL_FAIL   = [723, ''];

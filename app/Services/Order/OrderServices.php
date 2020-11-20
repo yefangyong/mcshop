@@ -29,6 +29,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -38,6 +39,44 @@ use Throwable;
 class OrderServices extends BaseServices
 {
     use OrderStatusTrait;
+
+    public function detail($userId, $orderId)
+    {
+        $order = $this->getOrderByUserIdAndId($userId, $orderId);
+        if (empty($order)) {
+            $this->throwBusinessException(CodeResponse::ORDER_UNKNOWN);
+        }
+
+        $detail = Arr::only($order->toArray(), [
+            "id",
+            "orderSn",
+            "message",
+            "addTime",
+            "consignee",
+            "mobile",
+            "address",
+            "goodsPrice",
+            "couponPrice",
+            "freightPrice",
+            'actualPrice',
+            "aftersaleStatus"
+        ]);
+
+        $detail['orderStatusText'] = Constant::ORDER_STATUS_TEXT_MAP[$order->order_status];
+        $detail['handleOption']    = $order->getCanHandleOptions();
+
+        $goodsList = $this->getOrderGoodList($orderId);
+        $detail['expCode'] = $order->ship_channel;
+        $detail['expNo']   = $order->ship_sn;
+        $detail['expName'] = ExpressServices::getInstance()->getExpressName($order->ship_channel);
+        $express           = []; //todo
+
+        return [
+            'orderInfo'   => $detail,
+            'orderGoods'  => $goodsList,
+            'expressInfo' => $express
+        ];
+    }
 
     /**
      * @param $userId
@@ -232,7 +271,7 @@ class OrderServices extends BaseServices
             $this->throwBusinessException();
         }
 
-        if (!$this->canDeleteHandle()) {
+        if (!$order->canDeleteHandle()) {
             $this->throwBusinessException(CodeResponse::ORDER_INVALID_OPERATION, '该订单不能被删除哦');
         }
 
@@ -240,6 +279,32 @@ class OrderServices extends BaseServices
 
         //todo 处理订单售后的信息
         return true;
+    }
+
+    /**
+     * @return Order[]|Builder[]|Collection
+     * 获取超时未收货的订单
+     */
+    public function getTimeUnConfirmOrders()
+    {
+        $days = SystemServices::getInstance()->getUnConfirmOrderTime();
+        return Order::query()->where('order_status', Constant::ORDER_STATUS_SHIP)
+            ->where('ship_time', '<=', now()->subDays($days))
+            ->where('ship_time', '>=', now()->subDays($days + 30))
+            ->get();
+    }
+
+    /**
+     * @throws BusinessException
+     * @throws Throwable
+     * 自动确认收货
+     */
+    public function autoConfirm()
+    {
+        $orders = $this->getTimeUnConfirmOrders();
+        foreach ($orders as $order) {
+            $this->confirm($order->user_id, $order->id, true);
+        }
     }
 
     /**

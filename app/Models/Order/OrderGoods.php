@@ -42,5 +42,8 @@ use App\Models\BaseModel;
  */
 class OrderGoods extends BaseModel
 {
-
+    protected $casts = [
+        'price'         => 'float',
+        'specifications' => 'array'
+    ];
 }
