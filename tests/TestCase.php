@@ -22,7 +22,7 @@ abstract class TestCase extends BaseTestCase
     public function setUp(): void
     {
         parent::setUp();
-        //$this->user    = factory(User::class)->create();
+        $this->user    = factory(User::class)->create();
     }
 
     public function assertLitemallApiGet($url, $ignore = [])
