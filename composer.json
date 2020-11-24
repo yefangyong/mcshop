@@ -17,7 +17,8 @@
         "laravel/tinker": "^2.0",
         "leonis/easysms-notification-channel": "^1.0",
         "simplesoftwareio/simple-qrcode": "~2",
-        "tymon/jwt-auth": "^1.0"
+        "tymon/jwt-auth": "^1.0",
+        "yansongda/laravel-pay": "^2.3"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.8",

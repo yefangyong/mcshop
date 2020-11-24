@@ -86,6 +86,16 @@ trait OrderStatusTrait
         return parent::__call($name, $arguments);
     }
 
+    public function isHadPaid()
+    {
+        return !in_array($this->order_status, [
+            Constant::ORDER_STATUS_CREATE,
+            Constant::ORDER_STATUS_CANCEL,
+            Constant::ORDER_STATUS_AUTO_CANCEL,
+            Constant::ORDER_STATUS_ADMIN_CANCEL,
+        ]);
+    }
+
 
     public function getCanHandleOptions()
     {

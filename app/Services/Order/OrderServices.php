@@ -65,7 +65,7 @@ class OrderServices extends BaseServices
         $detail['orderStatusText'] = Constant::ORDER_STATUS_TEXT_MAP[$order->order_status];
         $detail['handleOption']    = $order->getCanHandleOptions();
 
-        $goodsList = $this->getOrderGoodList($orderId);
+        $goodsList         = $this->getOrderGoodList($orderId);
         $detail['expCode'] = $order->ship_channel;
         $detail['expNo']   = $order->ship_sn;
         $detail['expName'] = ExpressServices::getInstance()->getExpressName($order->ship_channel);
@@ -339,9 +339,9 @@ class OrderServices extends BaseServices
     /**
      * @param  Order  $order
      * @param $payId
+     * @return Order
      * @throws BusinessException
-     * @throws Throwable
-     * 支付成功，处理订单
+     * @throws Throwable 支付成功，处理订单
      */
     public function payOrder(Order $order, $payId)
     {
@@ -366,7 +366,7 @@ class OrderServices extends BaseServices
 //        $user = UserServices::getInstance()->getUserById($order->user_id);
 //        $user->mobile = '18656275932';
 //        $user->notify(new NewPaidOrderSmsNotify($code, 'SMS_117526525'));
-        echo "订单处理成功";
+        return $order;
     }
 
     /**
@@ -572,6 +572,66 @@ class OrderServices extends BaseServices
     }
 
     /**
+     * @param $userId
+     * @param $orderId
+     * @return array
+     * @throws BusinessException
+     * 获取微信支付前订单数据
+     */
+    public function getPayWxOrder($userId, $orderId)
+    {
+        $order = $this->getOrderByUserIdAndId($userId, $orderId);
+        if (empty($order)) {
+            $this->throwBusinessException(CodeResponse::ORDER_UNKNOWN);
+        }
+        return $order = [
+            'out_trade_no' => $order->order_sn,
+            'body'         => '订单：' . $order->order_sn,
+            'total_fee'    => bcmul($order->actual_price, 100, 2),
+        ];
+    }
+
+    /**
+     * @param $data
+     * @return Order|Builder|Model|object|null
+     * @throws BusinessException
+     * @throws Throwable
+     * 微信支付回调
+     */
+    public function wxNotify($data)
+    {
+        //记录微信支付回调通知的关键数据
+        Log::debug('WxNotify data:' . var_export_inline($data));
+        $orderSn = $data['out_trade_no'] ?? '';
+        $payId   = $data['transaction_id'] ?? '';
+        $price   = bcdiv($data['total_price'], 100, 2);
+        $order   = $this->getOrderByOrderSn($orderSn);
+
+        if (is_null($order)) {
+            $this->throwBusinessException(CodeResponse::ORDER_UNKNOWN);
+        }
+        if ($order->isHadPaid()) {
+            return $order;
+        }
+
+        if (bccomp($order->actual_price, $price, 2) != 0) {
+            Log::error("支付回调，订单{$order->id}金额不一致，请检查，支付回调金额：{$price}，订单金额：{$order->actual_price}");
+            $this->throwBusinessException(CodeResponse::FAIL, '订单金额有问题，请检查');
+        }
+        return $this->payOrder($order, $payId);
+    }
+
+    /**
+     * @param $orderSn
+     * @return Order|Builder|Model|object|null
+     * 根据订单编号获取订单数据
+     */
+    public function getOrderByOrderSn($orderSn)
+    {
+        return Order::query()->whereOrderSn($orderSn)->first();
+    }
+
+    /**
      * @param $orderSn
      * @return bool
      * 检查订单号是否有效
@@ -580,4 +640,6 @@ class OrderServices extends BaseServices
     {
         return Order::query()->where('order_sn', $orderSn)->exists();
     }
+
+
 }
