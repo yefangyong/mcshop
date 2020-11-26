@@ -8,7 +8,7 @@ use App\Exceptions\BusinessException;
 
 class BaseServices
 {
-    protected static $instance = null;
+    protected static $instance = [];
 
     private function __construct()
     {
@@ -23,11 +23,11 @@ class BaseServices
      */
     public static function getInstance()
     {
-        if (self::$instance instanceof static) {
-            return self::$instance;
+        if ((static::$instance[static::class] ?? []) instanceof static) {
+            return static::$instance[static::class];
         }
-        static::$instance = new static();
-        return static::$instance;
+        static::$instance[static::class] = new static();
+        return static::$instance[static::class];
     }
 
 
