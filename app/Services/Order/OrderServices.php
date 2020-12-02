@@ -580,14 +580,44 @@ class OrderServices extends BaseServices
      */
     public function getPayWxOrder($userId, $orderId)
     {
-        $order = $this->getOrderByUserIdAndId($userId, $orderId);
-        if (empty($order)) {
-            $this->throwBusinessException(CodeResponse::ORDER_UNKNOWN);
-        }
+        $order = $this->getPayOrderInfo($userId, $orderId);
         return $order = [
             'out_trade_no' => $order->order_sn,
             'body'         => '订单：' . $order->order_sn,
             'total_fee'    => bcmul($order->actual_price, 100, 2),
+        ];
+    }
+
+    /**
+     * @param $userId
+     * @param $orderId
+     * @return Order|Order[]|Builder|Builder[]|Collection|Model|null
+     * @throws BusinessException
+     * 获取订单支付信息
+     */
+    public function getPayOrderInfo($userId, $orderId)
+    {
+        $order = $this->getOrderByUserIdAndId($userId, $orderId);
+        if (empty($order)) {
+            $this->throwBusinessException(CodeResponse::ORDER_UNKNOWN);
+        }
+        return $order;
+    }
+
+    /**
+     * @param $userId
+     * @param $orderId
+     * @return array
+     * @throws BusinessException
+     * 获取支付宝支付订单信息
+     */
+    public function getAlipayPayOrder($userId, $orderId)
+    {
+        $order = $this->getPayOrderInfo($userId, $orderId);
+        return [
+            'out_trade_no' => $order->order_sn,
+            'total_amount' => $order->actual_price,
+            'subject'      => 'test subject - 测试'
         ];
     }
 
@@ -605,8 +635,21 @@ class OrderServices extends BaseServices
         $orderSn = $data['out_trade_no'] ?? '';
         $payId   = $data['transaction_id'] ?? '';
         $price   = bcdiv($data['total_price'], 100, 2);
-        $order   = $this->getOrderByOrderSn($orderSn);
+        return $this->notify($price, $orderSn, $payId);
+    }
 
+    /**
+     * @param $price
+     * @param $orderSn
+     * @param $payId
+     * @return Order|Builder|Model|object|null
+     * @throws BusinessException
+     * @throws Throwable
+     * 支付成功后修改订单状态和数据
+     */
+    public function notify($price, $orderSn, $payId)
+    {
+        $order = $this->getOrderByOrderSn($orderSn);
         if (is_null($order)) {
             $this->throwBusinessException(CodeResponse::ORDER_UNKNOWN);
         }
@@ -619,6 +662,24 @@ class OrderServices extends BaseServices
             $this->throwBusinessException(CodeResponse::FAIL, '订单金额有问题，请检查');
         }
         return $this->payOrder($order, $payId);
+    }
+
+    /**
+     * @param $data
+     * @return Order|Builder|Model|object|null
+     * @throws BusinessException
+     * @throws Throwable
+     * 支付宝支付回调
+     */
+    public function alipayNotify($data)
+    {
+        if (!in_array(($data['trade_status'] ?? ''), ['TRADE_SUCCESS', 'TRADE_FINISHED'])) {
+            $this->throwBusinessException();
+        }
+        $orderSn = $data['out_trade_no'] ?? '';
+        $payId   = $data['transaction_id'] ?? '';
+        $price   = $data['total_amount'] ?? 0;
+        return $this->notify($price, $orderSn, $payId);
     }
 
     /**

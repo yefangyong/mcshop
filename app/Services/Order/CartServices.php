@@ -299,7 +299,7 @@ class CartServices extends BaseServices
      * @param  GoodsProduct  $goodsProduct
      * @param  Goods  $goods
      * @param $number
-     * @return bool
+     * @return Cart
      * @throws BusinessException
      * add cart
      */
@@ -320,6 +320,6 @@ class CartServices extends BaseServices
         $cart->user_id        = $userId;
         $cart->number         = $number;
         $cart->save();
-        return true;
+        return $cart;
     }
 }

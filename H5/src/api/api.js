@@ -151,6 +151,7 @@ export function cartList(query) {
   return request({
     url: CartList,
     method: 'get',
+      version: 'V2',
     params: query
   })
 }
@@ -159,6 +160,7 @@ export function cartAdd(data) {
   return request({
     url: CartAdd,
     method: 'post',
+      version: 'V2',
     data
   })
 }
@@ -167,6 +169,7 @@ export function cartFastAdd(data) {
   return request({
     url: CartFastAdd,
     method: 'post',
+      version: 'V2',
     data
   })
 }
@@ -175,6 +178,7 @@ export function cartUpdate(data) {
   return request({
     url: CartUpdate,
     method: 'post',
+      version: 'V2',
     data
   })
 }

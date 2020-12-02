@@ -78,9 +78,10 @@ class AuthController extends WxController
         $user->update_time     = Carbon::now()->toDateTimeString();
         $user->save();
 
+        $token = Auth::login($user);
         //TODO 新用户发券
         return $this->success([
-            'token'    => '124',
+            'token'    => $token,
             'userInfo' => [
                 'nickName'  => $username,
                 'avatarUrl' => $avatarUrl

@@ -14,8 +14,14 @@ service.interceptors.request.use(
       config.headers['X-Litemall-Token'] = `${window.localStorage.getItem(
         'Authorization'
       ) || ''}`;
+    config.headers['authorization'] ='bearer '+ `${window.localStorage.getItem(
+        'Authorization'
+    ) || ''}`
     }
     if (config.version === 'V2') {
+        config.headers['authorization'] ='bearer '+ `${window.localStorage.getItem(
+            'Authorization'
+        ) || ''}`
         config.baseURL = process.env.VUE_APP_BASE_API_V2;
     }
     return config;

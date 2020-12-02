@@ -35,13 +35,14 @@ Route::get('groupon/test', 'GrouponController@test');
 //订单模块--购物车
 Route::post('cart/add', 'CartController@add');
 Route::post('cart/fastadd', 'CartController@fastAdd');
-Route::get('cart/countProduct', 'CartController@countProduct');
+Route::any('cart/countProduct', 'CartController@countProduct');
 Route::post('cart/update', 'CartController@update');
 Route::post('cart/delete', 'CartController@delete');
 Route::post('cart/checked', 'CartController@checked');
-Route::post('cart/index', 'CartController@index');
+Route::any('cart/index', 'CartController@index');
+Route::any('cart/goodscount', 'CartController@goodsCount');
 Route::get('cart/checkout', 'CartController@checkout');
-Route::get('cart/checkout', 'CartController@checkout');
+
 
 //订单模块--订单
 Route::any('order/submit', 'OrderController@submit');

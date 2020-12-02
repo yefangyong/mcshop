@@ -15,17 +15,19 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 use Yansongda\LaravelPay\Facades\Pay;
 use Yansongda\Pay\Exceptions\InvalidArgumentException;
+use Yansongda\Pay\Exceptions\InvalidConfigException;
 use Yansongda\Pay\Exceptions\InvalidSignException;
 
 
 class OrderController extends WxController
 {
-    protected $except = ['wxNotify'];
+    protected $except = ['wxNotify', 'alipayNotify'];
 
     /**
      * @return JsonResponse
@@ -128,6 +130,35 @@ class OrderController extends WxController
         $orderId = $this->verifyId('orderId');
         $order   = OrderServices::getInstance()->getPayWxOrder($this->userId(), $orderId);
         return Pay::wechat()->wap($order);
+    }
+
+    /**
+     * @return Response
+     * @throws BusinessException
+     * 支付宝支付
+     */
+    public function h5alipay()
+    {
+        $orderId = $this->verifyId('orderId');
+        $order   = OrderServices::getInstance()->getAlipayPayOrder($this->userId(), $orderId);
+        return Pay::alipay()->wap($order);
+    }
+
+    /**
+     * @return Response
+     * @throws InvalidSignException
+     * @throws Throwable
+     * @throws InvalidConfigException
+     * 支付宝支付回调
+     */
+    public function alipayNotify()
+    {
+        $data = Pay::alipay()->verify()->toArray();
+        Log::info('alipayNotify:' . $data);
+        DB::transaction(function ($data) {
+            OrderServices::getInstance()->alipayNotify($data);
+        });
+        return Pay::alipay()->success();
     }
 
     /**
