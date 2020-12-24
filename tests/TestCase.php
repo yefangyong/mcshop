@@ -88,7 +88,7 @@ abstract class TestCase extends BaseTestCase
         $this->assertEquals($content2, $content1);
     }
 
-    public function getAuthHeader($username = '廖利', $password = '123456')
+    public function getAuthHeader($username = 'yfy12', $password = '123')
     {
         $response = $this->post('/wx/auth/login', ['username' => $username, 'password' => $password]);
         $content  = $response->getOriginalContent();

@@ -8,6 +8,7 @@ use App\CodeResponse;
 use App\Constant;
 use App\Exceptions\BusinessException;
 use App\Input\OrderGoodsSubmit;
+use App\Input\PageInput;
 use App\Jobs\OverTimeCancelOrder;
 use App\Models\Cart\Cart;
 use App\Models\Goods\Goods;
@@ -26,6 +27,7 @@ use App\Services\SystemServices;
 use App\Services\User\AddressServices;
 use App\Services\User\UserServices;
 use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -40,6 +42,31 @@ class OrderServices extends BaseServices
 {
     use OrderStatusTrait;
 
+    /**
+     * @param $userId
+     * @param  PageInput  $page
+     * @param $status
+     * @param  string[]  $column
+     * @return LengthAwarePaginator
+     * 获取订单列表信息
+     */
+    public function getOrderList($userId, PageInput $page, $status, $column = ['*'])
+    {
+        $orderStatus = $this->getOrderStatus($status);
+        $order       = Order::query();
+        if (!is_null($orderStatus)) {
+            $order = $order->where('order_status', $orderStatus);
+        }
+        return $order->where('user_id', $userId)->paginate($page->limit, $column, 'page', $page->page);
+    }
+
+    /**
+     * @param $userId
+     * @param $orderId
+     * @return array
+     * @throws BusinessException
+     * 订单详情
+     */
     public function detail($userId, $orderId)
     {
         $order = $this->getOrderByUserIdAndId($userId, $orderId);
@@ -521,12 +548,13 @@ class OrderServices extends BaseServices
 
     /**
      * @param $orderId
+     * @param  string[]  $column
      * @return OrderGoods[]|Builder[]|Collection
      * 获取订单商品的列表
      */
-    public function getOrderGoodList($orderId)
+    public function getOrderGoodList($orderId, $column = ['*'])
     {
-        return OrderGoods::query()->whereOrderId($orderId)->get();
+        return OrderGoods::query()->whereOrderId($orderId)->get($column);
     }
 
 

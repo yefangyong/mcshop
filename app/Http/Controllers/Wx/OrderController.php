@@ -11,6 +11,7 @@ use App\Models\Order\Order;
 use App\Models\Promotion\CouponUser;
 use App\Services\Order\OrderServices;
 use App\Services\Promotion\CouponServices;
+use App\Services\Promotion\GrouponServices;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -38,6 +39,34 @@ class OrderController extends WxController
         $orderId = $this->verifyId('orderId');
         $detail  = OrderServices::getInstance()->detail($this->userId(), $orderId);
         return $this->success($detail);
+    }
+
+    /**
+     * @return JsonResponse
+     * @throws BusinessException
+     * 获取订单的列表
+     */
+    public function list()
+    {
+        $page   = PageInput::new();
+        $status = $this->verifyInteger('showType', 0);
+        $orders = OrderServices::getInstance()->getOrderList($this->userId(), $page, $status);
+        $orderData    = [];
+        /** @var Order $order */
+        foreach ($orders as $order) {
+            $res['id']              = $order->id;
+            $res['orderSn']         = $order->order_sn;
+            $res['actualPrice']     = $order->order_price;
+            $res['aftersaleStatus'] = $order->aftersale_status;
+            $res['orderStatusText'] = Constant::ORDER_STATUS_TEXT_MAP[$order->order_status];
+            $res['isGroupin']       = GrouponServices::getInstance()->getGrouponByOrderId($order->id) ? true : false;
+            $res['handleOption']    = $order->getCanHandleOptions();
+            $res['goodsList']       = OrderServices::getInstance()->getOrderGoodList($order->id, ['number','pic_url','price','id','goods_name','specifications']);
+            $orderData[] = $res;
+        }
+        $data = $this->paginate($orders, $orderData);
+        return $this->success($data);
+
     }
 
     /**

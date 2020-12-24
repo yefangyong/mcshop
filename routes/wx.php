@@ -59,5 +59,6 @@ Route::any('order/refund', 'OrderController@refund');
 Route::any('order/delete', 'OrderController@delete');
 Route::any('order/confirm', 'OrderController@confirm');
 Route::any('order/detail', 'OrderController@detail');
+Route::any('order/list', 'OrderController@list');
 
 Route::get('home/redirectShareUrl', 'HomeController@redirectShareUrl')->name('home.redirectShareUrl');

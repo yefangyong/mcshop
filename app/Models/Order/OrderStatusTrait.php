@@ -111,5 +111,35 @@ trait OrderStatusTrait
         ];
     }
 
+    /**
+     * @param $status
+     * @return int
+     * 获取订单的状态
+     */
+    public function getOrderStatus($status) {
+        $orderStatus = null;
+        switch ($status) {
+            case 1:
+                // 待付款订单
+                $orderStatus = 101;
+                break;
+            case 2:
+                // 待发货订单
+                $orderStatus = 201;
+                break;
+            case 3:
+                // 待收货订单
+                $orderStatus = 301;
+                break;
+            case 4:
+                // 待评价订单
+                $orderStatus = 401;
+                break;
+            default:
+                $orderStatus = null;
+        }
+        return $orderStatus;
+    }
+
 
 }
