@@ -315,7 +315,7 @@ class CartServices extends BaseServices
         $cart->price          = $goodsProduct->price;
         $cart->goods_id       = $goods->id;
         $cart->product_id     = $goodsProduct->id;
-        $cart->specifications = json_encode($goodsProduct->specifications);
+        $cart->specifications = $goodsProduct->specifications;
         $cart->checked        = true;
         $cart->user_id        = $userId;
         $cart->number         = $number;

@@ -7,7 +7,15 @@ Route::post('auth/register', 'AuthController@register');
 Route::post('auth/regCaptcha', 'AuthController@regCaptcha');
 Route::post('auth/captcha', 'AuthController@regCaptcha');
 Route::post('auth/login', 'AuthController@login');
-Route::get('auth/user', 'AUthController@user');
+Route::get('auth/user', 'AuthController@user');
+Route::get('auth/info', 'AuthController@info');
+Route::get('auth/logout', 'AuthController@logout');
+Route::post('auth/profile', 'AuthController@profile');
+
+//用户模块--地址
+Route::get('address/list', 'AddressController@list');
+Route::post('address/save', 'AddressController@save');
+Route::post('address/delete', 'AddressController@delete');
 
 //商品模块--分类
 Route::get('catalog/index', 'CategoryController@index');

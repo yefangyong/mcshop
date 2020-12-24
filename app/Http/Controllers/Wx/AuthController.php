@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use League\CommonMark\Inline\Element\Code;
 
 class AuthController extends WxController
 {
@@ -24,7 +25,81 @@ class AuthController extends WxController
     public function user()
     {
         $user = Auth::guard('wx')->user();
-        return $this->success($user);
+        return $user;
+    }
+
+    /**
+     * @return JsonResponse
+     * 用户信息
+     */
+    public function info()
+    {
+        /** @var User $user */
+        $user = Auth::guard('wx')->user();
+        return $this->success([
+            'nickName' => $user->nickname,
+            'avatar'   => $user->avatar,
+            'gender'   => $user->gender,
+            'mobile'   => $user->mobile
+        ]);
+    }
+
+    /**
+     * @return JsonResponse
+     * @throws BusinessException
+     * 修改个人信息
+     */
+    public function profile()
+    {
+        $nickname = $this->verifyString('nickname', null);
+        $avatar   = $this->verifyString('avatar', null);
+        $gender   = $this->verifyString('gender', null);
+
+        /** @var User $user */
+        $user = $this->user();
+        if (!empty($nickname)) {
+            $user->nickname = $nickname;
+        }
+
+        if (!empty($avatar)) {
+            $user->avatar = $avatar;
+        }
+
+        if (!empty($gender)) {
+            $user->gender = $gender;
+        }
+
+        return $user->save() ? $this->success() : $this->fail(CodeResponse::UPDATED_FAIL);
+
+    }
+
+    /**
+     * @return JsonResponse
+     * @throws BusinessException
+     * 重置密码
+     */
+    public function reset()
+    {
+        $mobile   = $this->verifyString('mobile');
+        $code     = $this->verifyString('code');
+        $password = $this->verifyString('password');
+        $isPass   = UserServices::getInstance()->checkCaptcha($mobile, $code);
+        if (!$isPass) {
+            return $this->fail(CodeResponse::AUTH_CAPTCHA_UNMATCH);
+        }
+        $user = UserServices::getInstance()->getByMobile($mobile);
+        if (is_null($user)) {
+            return $this->fail(CodeResponse::AUTH_MOBILE_UNREGISTERED);
+        }
+        $password       = Hash::make($password);
+        $user->password = $password;
+        return $user->save() ? $this->success() : $this->fail(CodeResponse::UPDATED_FAIL);
+    }
+
+    public function logout()
+    {
+        Auth::guard('wx')->logout();
+        return $this->success();
     }
 
     /**
@@ -106,7 +181,7 @@ class AuthController extends WxController
             return $this->fail(CodeResponse::AUTH_MOBILE_REGISTERED);
         }
 
-        $lock = Cache::add('register_captcha_lock_'.$mobile, 1, 60);
+        $lock = Cache::add('register_captcha_lock_' . $mobile, 1, 60);
 
         if (!$lock) {
             return $this->fail(CodeResponse::AUTH_CAPTCHA_FREQUENCY);
@@ -153,7 +228,7 @@ class AuthController extends WxController
             return $this->fail(CodeResponse::UPDATED_FAIL);
         }
 
-        $token = Auth::guard('wx')->login($user);
+        $token = Auth::login($user);
 
         return $this->success([
             'token'    => $token,

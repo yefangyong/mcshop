@@ -44,7 +44,7 @@ class Input
 
     /**
      * @param  null  $data
-     * @return Input | OrderGoodsSubmit
+     * @return Input|static
      * @throws BusinessException
      */
     public static function new($data = null)

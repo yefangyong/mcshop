@@ -18,8 +18,8 @@ class OrderGoodsSubmit extends Input
     public function rule()
     {
         return [
-            'cartId'         => 'required|integer',
-            'addressId'      => 'required|integer',
+            //'cartId'         => 'required|integer',
+            //'addressId'      => 'required|integer',
             'couponId'       => 'integer',
             'userCouponId'   => 'integer',
             'message'        => 'string',
