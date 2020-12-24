@@ -51,7 +51,7 @@ class AddressController extends WxController
         $id      = $this->verifyId('id', 0);
         $address = AddressServices::getInstance()->getUserAddress($this->userId(), $id);
         if (is_null($address)) {
-            return $this->fail(CodeResponse::PARAM_ILLEGAL)
+            return $this->fail(CodeResponse::PARAM_ILLEGAL);
         }
         return $this->success($address);
     }
