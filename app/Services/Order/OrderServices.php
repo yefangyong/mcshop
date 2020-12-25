@@ -6,6 +6,7 @@ namespace App\Services\Order;
 
 use App\CodeResponse;
 use App\Constant;
+use App\Enums\OrderEnums;
 use App\Exceptions\BusinessException;
 use App\Input\OrderGoodsSubmit;
 use App\Input\PageInput;
@@ -42,6 +43,32 @@ class OrderServices extends BaseServices
 {
     use OrderStatusTrait;
 
+    public function coverOrder(Order $order, $grouponOrders, $goodsList)
+    {
+        return [
+            "id"              => $order->id,
+            "orderSn"         => $order->order_sn,
+            "actualPrice"     => $order->actual_price,
+            "orderStatusText" => Constant::ORDER_STATUS_TEXT_MAP[$order->order_status] ?? '',
+            "handleOption"    => $order->getCanHandleOptions(),
+            "aftersaleStatus" => $order->aftersale_status,
+            "isGroupin"       => in_array($order->id, $grouponOrders),
+            "goodsList"       => $goodsList,
+        ];
+    }
+
+    public function coverOrderGoods(OrderGoods $orderGoods)
+    {
+        return [
+            "id"             => $orderGoods->id,
+            "goodsName"      => $orderGoods->goods_name,
+            "number"         => $orderGoods->number,
+            "picUrl"         => $orderGoods->pic_url,
+            "specifications" => $orderGoods->specifications,
+            "price"          => $orderGoods->price
+        ];
+    }
+
     /**
      * @param $userId
      * @param  PageInput  $page
@@ -52,12 +79,23 @@ class OrderServices extends BaseServices
      */
     public function getOrderList($userId, PageInput $page, $status, $column = ['*'])
     {
-        $orderStatus = $this->getOrderStatus($status);
-        $order       = Order::query();
-        if (!is_null($orderStatus)) {
-            $order = $order->where('order_status', $orderStatus);
+        return Order::query()->where('user_id', $userId)
+            ->when(!empty($status), function (Builder $builder) use ($status) {
+                return $builder->whereIn('order_status', $status);
+            })->orderBy($page->sort, $page->order)->paginate($page->limit, $column, 'page', $page->page);
+    }
+
+    /**
+     * @param  array  $orderIds
+     * @return OrderGoods[]|Builder[]|Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection|\think\Collection
+     * 根据订单id，获取商品订单列表
+     */
+    public function getOrderGoodsListsByOrderIds(array $orderIds)
+    {
+        if (empty($orderIds)) {
+            return collect([]);
         }
-        return $order->where('user_id', $userId)->paginate($page->limit, $column, 'page', $page->page);
+        return OrderGoods::query()->whereIn('order_id', $orderIds)->get()->groupBy('order_id');
     }
 
     /**

@@ -80,4 +80,18 @@ class Constant
         self::ORDER_STATUS_AUTO_CONFIRM    => '已收货(系统)'
     ];
 
+    const ORDER_SHOW_TYPE_ALL           = 0;//全部订单
+    const ORDER_SHOW_TYPE_WAIT_PAY      = 1;//待付款订单
+    const ORDER_SHOW_TYPE_WAIT_DELIVERY = 2;//待发货订单
+    const ORDER_SHOW_TYPE_WAIT_RECEIPT  = 3;//待收货订单
+    const ORDER_SHOW_TYPE_WAIT_COMMENT  = 4;//待评价订单
+
+    const ORDER_SHOW_TYPE_STATUS_MAP = [
+        self::ORDER_SHOW_TYPE_ALL           => [],
+        self::ORDER_SHOW_TYPE_WAIT_PAY      => [self::ORDER_STATUS_CREATE],
+        self::ORDER_SHOW_TYPE_WAIT_DELIVERY => [self::ORDER_STATUS_PAY],
+        self::ORDER_SHOW_TYPE_WAIT_RECEIPT  => [self::ORDER_STATUS_SHIP],
+        self::ORDER_SHOW_TYPE_WAIT_COMMENT  => [self::ORDER_STATUS_CONFIRM],
+    ];
+
 }

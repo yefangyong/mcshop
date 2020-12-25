@@ -8,12 +8,11 @@ use App\Exceptions\BusinessException;
 use App\Input\OrderGoodsSubmit;
 use App\Input\PageInput;
 use App\Models\Order\Order;
-use App\Models\Promotion\CouponUser;
+use App\Models\Order\OrderGoods;
 use App\Services\Order\OrderServices;
-use App\Services\Promotion\CouponServices;
 use App\Services\Promotion\GrouponServices;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -48,25 +47,30 @@ class OrderController extends WxController
      */
     public function list()
     {
-        $page   = PageInput::new();
-        $status = $this->verifyInteger('showType', 0);
-        $orders = OrderServices::getInstance()->getOrderList($this->userId(), $page, $status);
-        $orderData    = [];
-        /** @var Order $order */
-        foreach ($orders as $order) {
-            $res['id']              = $order->id;
-            $res['orderSn']         = $order->order_sn;
-            $res['actualPrice']     = $order->order_price;
-            $res['aftersaleStatus'] = $order->aftersale_status;
-            $res['orderStatusText'] = Constant::ORDER_STATUS_TEXT_MAP[$order->order_status];
-            $res['isGroupin']       = GrouponServices::getInstance()->getGrouponByOrderId($order->id) ? true : false;
-            $res['handleOption']    = $order->getCanHandleOptions();
-            $res['goodsList']       = OrderServices::getInstance()->getOrderGoodList($order->id, ['number','pic_url','price','id','goods_name','specifications']);
-            $orderData[] = $res;
-        }
-        $data = $this->paginate($orders, $orderData);
-        return $this->success($data);
+        $page               = PageInput::new();
+        $status             = $this->verifyEnum('showType', 0, array_keys(Constant::ORDER_SHOW_TYPE_STATUS_MAP));
+        $orderListsWithPage = OrderServices::getInstance()->getOrderList($this->userId(), $page, $status);
+        $orderLists         = collect($orderListsWithPage->items());
+        $orderIds           = $orderLists->pluck('id')->toArray();
 
+        if (empty($orderIds)) {
+            return $this->successPaginate($orderListsWithPage);
+        }
+
+        //准备数据
+        $grouponOrderIds = GrouponServices::getInstance()->getGrouponOrderByOrderIds($orderIds);
+        $orderGoodsLists = OrderServices::getInstance()->getOrderGoodsListsByOrderIds($orderIds);
+        $list            = $orderLists->map(function (Order $order) use ($grouponOrderIds, $orderGoodsLists) {
+            /** @var Collection $goodsList */
+            $goodsList = $orderGoodsLists->get($order->id);
+            $goodsList = $goodsList->map(function (OrderGoods $orderGoods) {
+                return OrderServices::getInstance()->coverOrderGoods($orderGoods);
+            });
+            return OrderServices::getInstance()->coverOrder($order, $grouponOrderIds, $goodsList);
+        });
+
+        $data = $this->paginate($orderListsWithPage, $list);
+        return $this->success($data);
     }
 
     /**

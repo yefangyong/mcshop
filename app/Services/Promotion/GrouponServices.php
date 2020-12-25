@@ -25,6 +25,16 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class GrouponServices extends BaseServices
 {
     /**
+     * @param $orderIds
+     * @return array
+     * 获取所有有团购的订单ID
+     */
+    public function getGrouponOrderByOrderIds($orderIds)
+    {
+        return Groupon::query()->whereIn('order_id', $orderIds)->pluck('order_id')->toArray();
+    }
+
+    /**
      * @param $orderId
      * @throws BusinessException
      * 支付团购订单
@@ -91,7 +101,7 @@ class GrouponServices extends BaseServices
                 $font->size(28);
             });
 
-        $filePath = 'groupon/'.Carbon::now()->toDateString().'/'.Str::random().'.png';
+        $filePath = 'groupon/' . Carbon::now()->toDateString() . '/' . Str::random() . '.png';
         Storage::disk('public')->put($filePath, $image->encode());
         return Storage::url($filePath);
     }
