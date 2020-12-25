@@ -153,7 +153,7 @@ class OrderServices extends BaseServices
         //TODO 获取收获地址
         $address = AddressServices::getInstance()->getUserAddress($userId, $input->addressId);
         if (empty($address)) {
-            $this->throwBusinessException();
+            $this->throwBadArgumentValue();
         }
         //TODO 获取购物车的商品列表
         $checkedGoodList = CartServices::getInstance()->getCheckedGoodsList($userId, $input->cartId);

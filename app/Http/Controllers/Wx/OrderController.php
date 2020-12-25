@@ -48,7 +48,8 @@ class OrderController extends WxController
     public function list()
     {
         $page               = PageInput::new();
-        $status             = $this->verifyEnum('showType', 0, array_keys(Constant::ORDER_SHOW_TYPE_STATUS_MAP));
+        $showType           = $this->verifyEnum('showType', 0, array_keys(Constant::ORDER_SHOW_TYPE_STATUS_MAP));
+        $status             = Constant::ORDER_SHOW_TYPE_STATUS_MAP[$showType];
         $orderListsWithPage = OrderServices::getInstance()->getOrderList($this->userId(), $page, $status);
         $orderLists         = collect($orderListsWithPage->items());
         $orderIds           = $orderLists->pluck('id')->toArray();
