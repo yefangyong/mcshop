@@ -5,7 +5,6 @@ namespace App\Tools;
 
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\DB;
-use MongoDB\BSON\UTCDateTime;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
@@ -20,7 +19,7 @@ class Logs
 
     public static function get_log_hash()
     {
-        return substr(md5(time().self::LOG_KEY.rand(1, 10000)), 8, 16);
+        return substr(md5(time() . self::LOG_KEY . rand(1, 10000)), 8, 16);
     }
 
     public static function save($message, $data = [], $filename = 'mcshop', $isDate = false)
@@ -41,19 +40,19 @@ class Logs
         $filename .= '.log';
 
         if ($isDate) {
-            $path = storage_path('logs/'.date('Ym'));
+            $path = storage_path('logs/' . date('Ym'));
         } else {
             $path = storage_path('logs/');
         }
 
 
         self::mkDirs($path);
-        $path = $path.$filename;
+        $path = $path . $filename;
 
-        $message = $log_hash.' '.$message;
+        $message = $log_hash . ' ' . $message;
 
         if (!is_array($data)) {
-            $message .= ':'.$data;
+            $message .= ':' . $data;
             $data    = [];
         }
 
@@ -85,7 +84,7 @@ class Logs
             }, $bindings);
             $sql      = str_replace('?', '%s', $sql);
             $sql      = sprintf($sql, ...$bindings);
-            Logs::info('sql log', $sql.' time:'.$time, 'sql', false);
+            Logs::info('sql log', $sql . ' time:' . $time, 'sql', false);
         });
     }
 

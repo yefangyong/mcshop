@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers\Wx;
 
-use App\CodeResponse;
-use App\Constant;
 use App\Exceptions\BusinessException;
 use App\Input\PageInput;
 use App\Models\Promotion\CouponUser;
 use App\Services\Promotion\CouponServices;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Carbon;
 
 
 class CouponController extends WxController

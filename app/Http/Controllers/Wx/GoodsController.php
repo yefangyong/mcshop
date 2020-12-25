@@ -6,7 +6,6 @@ use App\CodeResponse;
 use App\Constant;
 use App\Exceptions\BusinessException;
 use App\Input\GoodsListInput;
-use App\Models\Collect;
 use App\Services\CollectServices;
 use App\Services\CommentServices;
 use App\Services\Goods\BrandServices;
@@ -88,7 +87,7 @@ class GoodsController extends WxController
      */
     public function category(Request $request)
     {
-        $id = $this->verifyId('id');
+        $id              = $this->verifyId('id');
         $currentCategory = CategoryServices::getInstance()->getCategoryById($id);
         if (is_null($currentCategory)) {
             return $this->fail(CodeResponse::SYSTEM_ERROR);
@@ -125,7 +124,8 @@ class GoodsController extends WxController
         $input = GoodsListInput::new();
 
         if ($this->isLogin() && !empty($input->keyword)) {
-            SearchHistoryServices::getInstance()->save($this->userId(), $input->keyword, Constant::SEARCH_HISTORY_FROM_WX);
+            SearchHistoryServices::getInstance()->save($this->userId(), $input->keyword,
+                Constant::SEARCH_HISTORY_FROM_WX);
         }
 
         //查询列表数据

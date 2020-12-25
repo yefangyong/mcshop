@@ -4,7 +4,6 @@
 namespace App\Input;
 
 
-use App\Exceptions\BusinessException;
 use Illuminate\Validation\Rule;
 
 class PageInput extends Input
@@ -18,10 +17,10 @@ class PageInput extends Input
     public function rule()
     {
         return [
-            'page'       => 'integer',
-            'limit'      => 'integer',
-            'sort'       => 'string',
-            'order'      => Rule::in(['desc', 'asc'])
+            'page'  => 'integer',
+            'limit' => 'integer',
+            'sort'  => 'string',
+            'order' => Rule::in(['desc', 'asc'])
         ];
     }
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Wx;
 
 
 use App\CodeResponse;
-
 use App\Services\Goods\CategoryServices;
 use Illuminate\Http\Request;
 

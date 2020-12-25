@@ -4,7 +4,6 @@ namespace App\Input;
 
 use App\CodeResponse;
 use App\Exceptions\BusinessException;
-use App\Models\Order\OrderGoods;
 use App\ValidateRequest;
 use Illuminate\Support\Facades\Validator;
 

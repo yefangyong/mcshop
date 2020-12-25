@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers\Wx;
 
-use App\CodeResponse;
 use App\Exceptions\BusinessException;
 use App\Input\PageInput;
-use App\Models\Goods\Goods;
 use App\Models\Promotion\GrouponRules;
-use App\Services\Goods\BrandServices;
 use App\Services\Goods\GoodsServices;
 use App\Services\Promotion\GrouponServices;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 
 class GrouponController extends WxController
 {
     public $except = ['test'];
 
-    public function test() {
+    public function test()
+    {
         $groupRule = GrouponServices::getInstance()->getGrouponRuleById(1);
-        $resp = GrouponServices::getInstance()->createGroupShareImage($groupRule);
+        $resp      = GrouponServices::getInstance()->createGroupShareImage($groupRule);
         echo $resp;
         //return response()->make($resp)->header('Content-Type', 'image/png');
     }

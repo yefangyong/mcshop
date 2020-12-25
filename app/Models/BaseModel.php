@@ -5,10 +5,10 @@ namespace App\Models;
 
 
 use DateTimeInterface;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Exception;
 use Throwable;
 
 /**
@@ -92,7 +92,7 @@ class BaseModel extends Model
             return 0;
         }
 
-        throw_if(!empty($diff), Exception::class, 'key [ '.implode(',', $diff).' ] is not exist');
+        throw_if(!empty($diff), Exception::class, 'key [ ' . implode(',', $diff) . ' ] is not exist');
 
         //使用newModelQuery 更新的时候不用带上 deleted = 0 的条件
         $query = self::newModelQuery()->where($this->getKeyName(), $this->getKey());

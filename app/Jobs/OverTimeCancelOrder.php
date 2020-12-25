@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Constant;
 use App\Exceptions\BusinessException;
 use App\Services\Order\OrderServices;
 use App\Services\SystemServices;

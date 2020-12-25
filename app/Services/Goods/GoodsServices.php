@@ -40,7 +40,7 @@ class GoodsServices extends BaseServices
     public function addStock($productId, $num)
     {
         /** @var GoodsProduct $product */
-        $product = $this->getGoodsProductById($productId);
+        $product         = $this->getGoodsProductById($productId);
         $product->number = $product->number + $num;
         return $product->cas();
     }

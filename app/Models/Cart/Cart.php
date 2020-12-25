@@ -45,6 +45,6 @@ class Cart extends BaseModel
 {
     public $casts = [
         'specifications' => 'array',
-        'price' => 'double'
+        'price'          => 'double'
     ];
 }

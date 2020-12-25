@@ -116,7 +116,8 @@ trait OrderStatusTrait
      * @return int
      * 获取订单的状态
      */
-    public function getOrderStatus($status) {
+    public function getOrderStatus($status)
+    {
         $orderStatus = null;
         switch ($status) {
             case 1:

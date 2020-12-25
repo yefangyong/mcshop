@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Wx;
 
 
 use App\CodeResponse;
-
 use App\Exceptions\BusinessException;
 use App\Models\User\User;
 use App\Services\User\UserServices;
@@ -16,7 +15,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use League\CommonMark\Inline\Element\Code;
 
 class AuthController extends WxController
 {

@@ -4,7 +4,6 @@
 namespace App\Input;
 
 
-use App\Exceptions\BusinessException;
 use Illuminate\Validation\Rule;
 
 class GoodsListInput extends Input

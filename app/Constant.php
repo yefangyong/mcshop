@@ -4,8 +4,6 @@
 namespace App;
 
 
-use phpDocumentor\Reflection\Types\Self_;
-
 class Constant
 {
     const SEARCH_HISTORY_FROM_WX = 'wx';
