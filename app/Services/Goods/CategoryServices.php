@@ -13,12 +13,13 @@ use Illuminate\Database\Eloquent\Model;
 class CategoryServices extends BaseServices
 {
     /**
+     * @param $columns
      * @return Builder[]|Collection
      * 获取一级分类的数据
      */
-    public function getL1List()
+    public function getL1List($columns = ['*'])
     {
-        return Category::query()->where('pid', 0)->where('level', 'L1')->get();
+        return Category::query()->where('pid', 0)->where('level', 'L1')->get($columns);
     }
 
     /**

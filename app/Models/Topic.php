@@ -39,5 +39,5 @@ namespace App\Models;
  */
 class Topic extends BaseModel
 {
-
+    public $hidden = ['content', 'sort_order', 'goods', 'add_time', 'update_time', 'deleted'];
 }

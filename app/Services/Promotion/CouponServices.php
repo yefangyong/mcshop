@@ -35,7 +35,7 @@ class CouponServices extends BaseServices
      */
     public function getAvailableList($userId, $offset = 0, $limit = 3)
     {
-        $couponIds = CouponUser::query()->whereUserId($userId)->whereStatus(0)->get()->pluck('coupon_id')->toArray();
+        $couponIds = CouponUser::query()->whereUserId($userId)->get()->pluck('coupon_id')->toArray();
         return Coupon::query()->when(!empty($couponIds), function (Builder $builder) use ($couponIds) {
             return $builder->whereNotIn('id', $couponIds);
         })->offset($offset)->limit($limit)->get();

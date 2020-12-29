@@ -30,7 +30,7 @@ class GoodsServices extends BaseServices
     {
         $conditions = [
             'is_on_sale' => 1,
-            'is_new'  => 1
+            'is_new'     => 1
         ];
         return $this->getGoodsByConditions($conditions, $offset, $limit);
     }
@@ -44,7 +44,7 @@ class GoodsServices extends BaseServices
     public function getHotGoods($limit, $offset = 0)
     {
         $conditions = [
-            'is_hot' => 1,
+            'is_hot'     => 1,
             'is_on_sale' => 1
         ];
         return $this->getGoodsByConditions($conditions, $offset, $limit);
@@ -56,12 +56,19 @@ class GoodsServices extends BaseServices
      * @param $limit
      * @param  string  $sort
      * @param  string  $order
+     * @param  string[]  $columns
      * @return Goods[]|Builder[]|Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection
      * 根据条件获取商品数据
      */
-    private function getGoodsByConditions($conditions, $offset, $limit, $sort = 'add_time', $order = 'desc')
-    {
-        return Goods::query()->where($conditions)->offset($offset)->limit($limit)->orderBy($sort, $order)->get();
+    private function getGoodsByConditions(
+        $conditions,
+        $offset,
+        $limit,
+        $sort = 'add_time',
+        $order = 'desc',
+        $columns = ['id', 'name', 'brief', 'pic_url', 'is_new', 'is_hot', 'counter_price', 'retail_price']
+    ) {
+        return Goods::query()->where($conditions)->offset($offset)->limit($limit)->orderBy($sort, $order)->get($columns);
     }
 
     /**

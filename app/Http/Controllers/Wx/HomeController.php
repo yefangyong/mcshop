@@ -20,7 +20,7 @@ class HomeController extends WxController
     {
         $user        = $this->user();
         $bannerList  = AdServices::getInstance()->queryIndex();
-        $channelList = CategoryServices::getInstance()->getL1List();
+        $channelList = CategoryServices::getInstance()->getL1List(['id', 'name', 'icon_url']);
         if (empty($user)) {
             $couponList = CouponServices::getInstance()->getCouponListByLimit();
         } else {
@@ -32,7 +32,7 @@ class HomeController extends WxController
 
         $hotGoodsList = GoodsServices::getInstance()->getHotGoods(SystemServices::getInstance()->getHotGoodsLimit());
 
-        $brandList = BrandServices::getInstance()->getBrandByLimit(SystemServices::getInstance()->getBrandLimit());
+        $brandList = BrandServices::getInstance()->getBrandByLimit(SystemServices::getInstance()->getBrandLimit(), ['id','name', 'desc', 'pic_url', 'floor_price']);
 
         $topicList = TopicServices::getInstance()->getTopicByLimit(SystemServices::getInstance()->getTopicLimit());
 

@@ -14,9 +14,9 @@ use Illuminate\Database\Eloquent\Model;
 class BrandServices extends BaseServices
 {
 
-    public function getBrandByLimit($limit, $offset = 0, $sort = 'add_time',$order = 'desc')
+    public function getBrandByLimit($limit, $columns = ['*'], $offset = 0)
     {
-        return Brand::query()->offset($offset)->limit($limit)->orderBy($sort, $order)->get();
+        return Brand::query()->offset($offset)->limit($limit)->get($columns);
     }
 
     /**
