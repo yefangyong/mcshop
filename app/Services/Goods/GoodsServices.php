@@ -16,9 +16,53 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Throwable;
 
 class GoodsServices extends BaseServices
 {
+    /**
+     * @param $offset
+     * @param $limit
+     * @return Goods[]|Builder[]|Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection
+     * 获取新发商品
+     */
+    public function getNewGoods($limit, $offset = 0)
+    {
+        $conditions = [
+            'is_on_sale' => 1,
+            'is_new'  => 1
+        ];
+        return $this->getGoodsByConditions($conditions, $offset, $limit);
+    }
+
+    /**
+     * @param $offset
+     * @param $limit
+     * @return Goods[]|Builder[]|Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection
+     * 获取热门商品
+     */
+    public function getHotGoods($limit, $offset = 0)
+    {
+        $conditions = [
+            'is_hot' => 1,
+            'is_on_sale' => 1
+        ];
+        return $this->getGoodsByConditions($conditions, $offset, $limit);
+    }
+
+    /**
+     * @param $conditions
+     * @param $offset
+     * @param $limit
+     * @param  string  $sort
+     * @param  string  $order
+     * @return Goods[]|Builder[]|Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection
+     * 根据条件获取商品数据
+     */
+    private function getGoodsByConditions($conditions, $offset, $limit, $sort = 'add_time', $order = 'desc')
+    {
+        return Goods::query()->where($conditions)->offset($offset)->limit($limit)->orderBy($sort, $order)->get();
+    }
 
     /**
      * @param $productId
@@ -36,6 +80,7 @@ class GoodsServices extends BaseServices
      * @param $num
      * @return int
      * 加库存 使用乐观锁
+     * @throws Throwable
      */
     public function addStock($productId, $num)
     {

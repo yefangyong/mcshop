@@ -31,6 +31,26 @@ class SystemServices extends BaseServices
     const LITEMALL_MALL_LONGITUDE = "litemall_mall_longitude";
     const LITEMALL_MALL_Latitude  = "litemall_mall_latitude";
 
+    public function getBrandLimit()
+    {
+        return $this->get(self::LITEMALL_WX_INDEX_BRAND);
+    }
+
+    public function getTopicLimit()
+    {
+        return $this->get(self::LITEMALL_WX_INDEX_TOPIC);
+    }
+
+    public function getNewGoodsLimit()
+    {
+        return $this->get(self::LITEMALL_WX_INDEX_NEW);
+    }
+
+    public function getHotGoodsLimit()
+    {
+        return $this->get(self::LITEMALL_WX_INDEX_HOT);
+    }
+
     /**
      * @return |null
      * 获取超时未确认收货的时间
@@ -74,6 +94,10 @@ class SystemServices extends BaseServices
         return $this->get(self::LITEMALL_EXPRESS_FREIGHT_MIN);
     }
 
+    /**
+     * @param $key
+     * @return |null
+     */
     public function get($key)
     {
         $value = System::query()->where('key_name', $key)->first(['key_value']);

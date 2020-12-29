@@ -12,13 +12,35 @@ use App\Models\Promotion\Coupon;
 use App\Models\Promotion\CouponUser;
 use App\Services\BaseServices;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Concerns\BuildsQueries;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class CouponServices extends BaseServices
 {
+    public function getCouponListByLimit($offset = 0, $limit = 3, $order = 'desc', $sort = 'add_time')
+    {
+        return Coupon::query()->offset($offset)->limit($limit)->orderBy($sort, $order)->get();
+    }
+
+    /**
+     * @param $userId
+     * @param  int  $offset
+     * @param  int  $limit
+     * @return Coupon[]|array|BuildsQueries[]|Builder[]|Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection
+     * 获取登录用户没有领过的优惠券
+     */
+    public function getAvailableList($userId, $offset = 0, $limit = 3)
+    {
+        $couponIds = CouponUser::query()->whereUserId($userId)->whereStatus(0)->get()->pluck('coupon_id')->toArray();
+        return Coupon::query()->when(!empty($couponIds), function (Builder $builder) use ($couponIds) {
+            return $builder->whereNotIn('id', $couponIds);
+        })->offset($offset)->limit($limit)->get();
+    }
+
     /**
      * @param  Coupon  $coupon
      * @param  CouponUser  $couponUser
@@ -83,6 +105,7 @@ class CouponServices extends BaseServices
      * @param $userCouponId
      * @return array
      * 获取合适的优惠券
+     * @throws Exception
      */
     public function getUserMeetCoupons($userId, $checkedGoodsPrice, $couponId, $userCouponId)
     {

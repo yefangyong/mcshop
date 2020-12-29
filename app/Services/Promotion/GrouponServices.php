@@ -24,6 +24,11 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class GrouponServices extends BaseServices
 {
+    public function getGrouponListByLimit($limit = 5, $offset = 0, $order = 'desc', $sort = 'add_time')
+    {
+        return Groupon::query()->offset($offset)->limit($limit)->orderBy($sort, $order)->get();
+    }
+
     /**
      * @param $orderIds
      * @return array

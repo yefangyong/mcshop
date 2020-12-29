@@ -9,7 +9,7 @@ Route::post('auth/captcha', 'AuthController@regCaptcha');
 Route::post('auth/login', 'AuthController@login');
 Route::get('auth/user', 'AuthController@user');
 Route::get('auth/info', 'AuthController@info');
-Route::get('auth/logout', 'AuthController@logout');
+Route::post('auth/logout', 'AuthController@logout');
 Route::post('auth/profile', 'AuthController@profile');
 
 //用户模块--地址
@@ -34,7 +34,7 @@ Route::get('goods/detail', 'GoodsController@detail');
 //商品模块--优惠券
 Route::get('coupon/list', 'CouponController@list');
 Route::get('coupon/mylist', 'CouponController@mylist');
-Route::get('coupon/receive', 'CouponController@receive');
+Route::any('coupon/receive', 'CouponController@receive');
 
 //商品模块--团购
 Route::get('groupon/list', 'GrouponController@list');
@@ -62,3 +62,4 @@ Route::any('order/detail', 'OrderController@detail');
 Route::any('order/list', 'OrderController@list');
 
 Route::get('home/redirectShareUrl', 'HomeController@redirectShareUrl')->name('home.redirectShareUrl');
+Route::get('home/index', 'HomeController@index');
