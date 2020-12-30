@@ -63,3 +63,7 @@ Route::any('order/list', 'OrderController@list');
 
 Route::get('home/redirectShareUrl', 'HomeController@redirectShareUrl')->name('home.redirectShareUrl');
 Route::get('home/index', 'HomeController@index');
+
+Route::get('topic/list', 'TopicController@getList');
+Route::get('topic/detail', 'TopicController@getDetail');
+Route::get('topic/related', 'TopicController@getRelated');
