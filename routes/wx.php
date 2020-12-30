@@ -68,3 +68,5 @@ Route::get('topic/list', 'TopicController@getList');
 Route::get('topic/detail', 'TopicController@getDetail');
 Route::get('topic/related', 'TopicController@getRelated');
 Route::get('user/index', 'UserController@index');
+Route::get('user/index', 'UserController@index');
+Route::post('feedback/submit', 'FeedbackController@submit');
