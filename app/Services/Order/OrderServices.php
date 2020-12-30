@@ -763,5 +763,15 @@ class OrderServices extends BaseServices
         return Order::query()->where('order_sn', $orderSn)->exists();
     }
 
+    /**
+     * @param $userId
+     * @return Order[]|Builder[]|Collection
+     * 获取用户的所有订单
+     */
+    public function getOrdersByUserId($userId)
+    {
+        return Order::query()->whereUserId($userId)->get();
+    }
+
 
 }

@@ -67,3 +67,4 @@ Route::get('home/index', 'HomeController@index');
 Route::get('topic/list', 'TopicController@getList');
 Route::get('topic/detail', 'TopicController@getDetail');
 Route::get('topic/related', 'TopicController@getRelated');
+Route::get('user/index', 'UserController@index');
