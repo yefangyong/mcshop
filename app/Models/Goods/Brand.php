@@ -32,4 +32,5 @@ use App\Models\BaseModel;
  */
 class Brand extends BaseModel
 {
+    public $visible = ['id', 'name', 'desc', 'pic_url', 'floor_price'];
 }

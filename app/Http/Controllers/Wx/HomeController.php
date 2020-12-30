@@ -11,6 +11,7 @@ use App\Services\Promotion\CouponServices;
 use App\Services\Promotion\GrouponServices;
 use App\Services\SystemServices;
 use App\Services\TopicServices;
+use Illuminate\Support\Facades\Cache;
 
 class HomeController extends WxController
 {
@@ -18,6 +19,13 @@ class HomeController extends WxController
 
     public function index()
     {
+        $key        = 'mcshop_index_data';
+        $index_data = Cache::get($key);
+
+        if (!empty($index_data)) {
+            return $this->success(json_decode($index_data, true));
+        }
+
         $user        = $this->user();
         $bannerList  = AdServices::getInstance()->queryIndex();
         $channelList = CategoryServices::getInstance()->getL1List(['id', 'name', 'icon_url']);
@@ -32,7 +40,7 @@ class HomeController extends WxController
 
         $hotGoodsList = GoodsServices::getInstance()->getHotGoods(SystemServices::getInstance()->getHotGoodsLimit());
 
-        $brandList = BrandServices::getInstance()->getBrandByLimit(SystemServices::getInstance()->getBrandLimit(), ['id','name', 'desc', 'pic_url', 'floor_price']);
+        $brandList = BrandServices::getInstance()->getBrandByLimit(SystemServices::getInstance()->getBrandLimit());
 
         $topicList = TopicServices::getInstance()->getTopicByLimit(SystemServices::getInstance()->getTopicLimit());
 
@@ -49,6 +57,8 @@ class HomeController extends WxController
             'grounonList'    => $grouponList,
             'floorGoodsList' => $floorGoodsList
         ];
+        //写入缓存中
+        Cache::put($key, json_encode($data), 60 * 60);
         return $this->success($data);
     }
 
