@@ -146,22 +146,22 @@ class OrderServices extends BaseServices
      */
     public function submit($userId, OrderGoodsSubmit $input)
     {
-        //TODO 验证团购活动是否有效
+        // 验证团购活动是否有效
         if (!empty($input->grouponRulesId)) {
             GrouponServices::getInstance()->checkGrouponRulesValid($userId, $input->grouponRulesId);
         }
-        //TODO 获取收获地址
+        // 获取收获地址
         $address = AddressServices::getInstance()->getUserAddress($userId, $input->addressId);
         if (empty($address)) {
             $this->throwBadArgumentValue();
         }
-        //TODO 获取购物车的商品列表
+        // 获取购物车的商品列表
         $checkedGoodList = CartServices::getInstance()->getCheckedGoodsList($userId, $input->cartId);
-        //TODO 计算商品的总价格（团购优惠金额，货品价格，优惠券优惠价格，运费）
+        // 计算商品的总价格（团购优惠金额，货品价格，优惠券优惠价格，运费）
         $grouponPrice      = 0;
         $checkedGoodsPrice = CartServices::getInstance()->getCartPriceCutGroupon($checkedGoodList,
             $input->grouponRulesId, $grouponPrice);
-        //TODO 获取优惠券面额
+        // 获取优惠券面额
         $couponPrice = 0;
         if ($input->couponId > 0) {
             /** @var Coupon $coupon */
@@ -172,13 +172,13 @@ class OrderServices extends BaseServices
                 $couponPrice = $coupon->discount;
             }
         }
-        //TODO 运费
+        // 运费
         $freightPrice = SystemServices::getInstance()->getFreightPrice($checkedGoodsPrice);
-        //TODO 计算订单金额
+        // 计算订单金额
         $orderTotalPrice = bcadd($checkedGoodsPrice, $freightPrice, 2);
         $orderTotalPrice = bcsub($orderTotalPrice, $couponPrice, 2);
         $orderTotalPrice = max(0, $orderTotalPrice);
-        //TODO 保存订单
+        // 保存订单
         $order                 = new Order();
         $order->user_id        = $userId;
         $order->order_sn       = $this->generateOrderSn();
@@ -195,17 +195,17 @@ class OrderServices extends BaseServices
         $order->actual_price   = $orderTotalPrice;
         $order->groupon_price  = $grouponPrice;
         $order->save();
-        //TODO 写入订单商品记录（快照）
+        // 写入订单商品记录（快照）
         $this->saveOrderGoods($checkedGoodList, $order->id);
-        //TODO 删除购物车商品记录
+        // 删除购物车商品记录
         CartServices::getInstance()->clearCartGoods($userId, $input->cartId);
-        //TODO 减库存(重点：乐观锁+防止重复请求)
+        // 减库存(重点：乐观锁+防止重复请求)
         $this->reduceProductsStock($checkedGoodList);
-        //TODO 设置优惠券的状态
-        //TODO 添加团购记录
+        // 设置优惠券的状态
+        // 添加团购记录
         GrouponServices::getInstance()->saveGrouponData($input->grouponRulesId, $userId, $order->id,
             $input->grouponLinkId);
-        //TODO 设置订单支付超时取消订单任务
+        // 设置订单支付超时取消订单任务
         dispatch(new OverTimeCancelOrder($userId, $order->id));
         return $order;
     }
