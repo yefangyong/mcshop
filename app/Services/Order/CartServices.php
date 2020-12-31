@@ -90,7 +90,7 @@ class CartServices extends BaseServices
      */
     public function getCheckedByUidAndCartId($userId, $cartId)
     {
-        return Cart::query()->where('user_id', $userId)->where('id', $cartId)->first();
+        return Cart::query()->where('user_id', $userId)->where('id', $cartId)->get();
     }
 
     /**
@@ -212,21 +212,20 @@ class CartServices extends BaseServices
     }
 
     /**
+     * @param $cartProduct
      * @param $goodProduct
      * @param $num
      * @return Cart|null
-     * @throws BusinessException
-     * 编辑购物车的数量
+     * @throws BusinessException 编辑购物车的数量
      */
-    public function editCartNum($goodProduct, $num)
+    public function editCartNum($cartProduct, $goodProduct, $num)
     {
-        $cart = Cart::new();
         if ($num > $goodProduct->number) {
             $this->throwBusinessException(CodeResponse::GOODS_NO_STOCK);
         }
-        $cart->number = $num;
-        $cart->save();
-        return $cart;
+        $cartProduct->number += $num;
+        $cartProduct->save();
+        return $cartProduct;
     }
 
     /**
@@ -265,10 +264,10 @@ class CartServices extends BaseServices
         list($goods, $goodProduct) = $this->getGoodInfo($goodsId, $productId);
         $cartProduct = CartServices::getInstance()->getCartProduct($userId, $productId, $goodsId);
 
-        if (is_null($cartProduct)) {
+        if (is_null($cartProduct) || !$cartProduct->exists()) {
             return CartServices::getInstance()->newCart($userId, $goodProduct, $goods, $number);
         } else {
-            return $this->editCartNum($goodProduct, $number);
+            return $this->editCartNum($cartProduct, $goodProduct, $number);
         }
     }
 
