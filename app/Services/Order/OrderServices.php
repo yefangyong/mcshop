@@ -90,7 +90,7 @@ class OrderServices extends BaseServices
         if (empty($orderIds)) {
             return collect([]);
         }
-        return OrderGoods::query()->whereIn('order_id', $orderIds)->get()->groupBy('order_id');
+        return OrderGoods::query()->whereIn('order_id', $orderIds)->get();
     }
 
     /**

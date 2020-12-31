@@ -15,7 +15,7 @@ class UserController extends WxController
     {
         $userId    = $this->userId();
         $orders    = OrderServices::getInstance()->getOrdersByUserId($userId);
-        $unpaid     = 0;
+        $unpaid    = 0;
         $unship    = 0;
         $unrecv    = 0;
         $uncomment = 0;

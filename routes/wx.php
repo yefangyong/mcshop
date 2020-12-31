@@ -70,3 +70,6 @@ Route::get('topic/related', 'TopicController@getRelated');
 Route::get('user/index', 'UserController@index');
 Route::get('user/index', 'UserController@index');
 Route::post('feedback/submit', 'FeedbackController@submit');
+Route::get('issue/list', 'IssueController@getList');
+Route::any('collect/list', 'CollectController@getList'); //收藏列表
+Route::any('collect/addordelete', 'CollectController@addOrDelete'); //添加或取消收藏

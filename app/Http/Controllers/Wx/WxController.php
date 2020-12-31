@@ -98,9 +98,9 @@ class WxController extends Controller
         return response()->json($res);
     }
 
-    public function successPaginate($page)
+    public function successPaginate($page, $list = [])
     {
-        return $this->success($this->paginate($page));
+        return $this->success($this->paginate($page, $list));
     }
 
     public function success($data = null, $info = '')

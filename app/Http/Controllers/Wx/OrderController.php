@@ -60,7 +60,7 @@ class OrderController extends WxController
 
         //准备数据
         $grouponOrderIds = GrouponServices::getInstance()->getGrouponOrderByOrderIds($orderIds);
-        $orderGoodsLists = OrderServices::getInstance()->getOrderGoodsListsByOrderIds($orderIds);
+        $orderGoodsLists = OrderServices::getInstance()->getOrderGoodsListsByOrderIds($orderIds)->groupBy('order_id');
         $list            = $orderLists->map(function (Order $order) use ($grouponOrderIds, $orderGoodsLists) {
             /** @var Collection $goodsList */
             $goodsList = $orderGoodsLists->get($order->id);
