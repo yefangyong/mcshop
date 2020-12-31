@@ -73,11 +73,10 @@ class CartServices extends BaseServices
         if (empty($cartId) || is_null($cartId)) {
             $checkedGoodsList = $this->getCheckedByUid($userId);
         } else {
-            $list = $this->getCheckedByUidAndCartId($userId, $cartId);
-            if (is_null($list)) {
+            $checkedGoodsList = $this->getCheckedByUidAndCartId($userId, $cartId);
+            if (is_null($checkedGoodsList)) {
                 $this->throwBusinessException(CodeResponse::SYSTEM_ERROR);
             }
-            $checkedGoodsList = collect($list);
         }
         return $checkedGoodsList;
     }

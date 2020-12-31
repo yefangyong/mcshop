@@ -24,7 +24,7 @@ class Input
         }
         $validate = Validator::make($data, $this->rule());
         if ($validate->fails()) {
-            throw new BusinessException(CodeResponse::PARAM_NOT_EMPTY);
+            throw new BusinessException(CodeResponse::PARAM_NOT_EMPTY, $validate->errors());
         }
         $map  = get_object_vars($this);
         $keys = array_keys($map);

@@ -11,6 +11,7 @@ use App\Models\Order\Order;
 use App\Models\Order\OrderGoods;
 use App\Services\Order\OrderServices;
 use App\Services\Promotion\GrouponServices;
+use App\Tools\Logs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -88,13 +89,16 @@ class OrderController extends WxController
         $lock     = Cache::lock($lock_key);
 
         //加上锁，防止重复请求
-        if ($lock->get()) {
+        if (!$lock->get()) {
             return $this->fail(CodeResponse::FAIL, '请勿重复请求');
         }
 
         $order = DB::transaction(function () use ($input) {
             return OrderServices::getInstance()->submit($this->userId(), $input);
         });
+
+        //释放锁
+        $lock->release();
 
         return $this->success([
             'orderId'       => $order->id,
