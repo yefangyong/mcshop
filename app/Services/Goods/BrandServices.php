@@ -4,6 +4,7 @@
 namespace App\Services\Goods;
 
 
+use App\Input\PageInput;
 use App\Models\Goods\Brand;
 use App\Services\BaseServices;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -30,24 +31,12 @@ class BrandServices extends BaseServices
     }
 
     /**
-     * @param $page
-     * @param $limit
-     * @param $sort
-     * @param $order
+     * @param  PageInput  $page
      * @param  string[]  $columns
      * @return LengthAwarePaginator
-     * 获取品牌分页的数据
      */
-    public function getBrandList($page, $limit, $sort, $order, $columns = ['*'])
+    public function getBrandList(PageInput $page, $columns = ['*'])
     {
-        $query = Brand::query();
-        return $query->when((!empty($sort) && !empty($order)), function ($query) use ($sort, $order) {
-            return $query->orderBy($sort, $order);
-        })->paginate($limit, $columns, 'page', $page);
-//        $query = Brand::query();
-//        if (!empty($sort) && !empty($order)) {
-//            $query = $query->orderBy($sort, $order);
-//        }
-//        return $query->paginate($limit, $columns, 'page', $page);
+        return  Brand::query()->orderBy($page->sort, $page->order)->paginate($page->limit, $columns, 'page', $page->page);
     }
 }

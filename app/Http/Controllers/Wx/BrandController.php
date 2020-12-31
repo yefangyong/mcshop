@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Wx;
 
 use App\CodeResponse;
 use App\Exceptions\BusinessException;
+use App\Input\PageInput;
 use App\Services\Goods\BrandServices;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,12 +21,9 @@ class BrandController extends WxController
      */
     public function list(Request $request)
     {
-        $page  = $this->verifyId('page', 1);
-        $limit = $this->verifyId('limit', 10);
-        $sort  = $this->verifyEnum('sort', 'add_time', ['add_time', 'retail_price', 'name']);
-        $order = $this->verifyEnum('order', 'desc', ['desc', 'asc']);
+        $page = PageInput::new();
 
-        $list = BrandServices::getInstance()->getBrandList($page, $limit, $sort, $order,
+        $list = BrandServices::getInstance()->getBrandList($page,
             ['id', 'name', 'desc', 'pic_url', 'floor_price']);
         return $this->successPaginate($list);
     }

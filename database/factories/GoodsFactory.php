@@ -28,7 +28,7 @@ $factory->define(\App\Models\Goods\Goods::class, function (Faker $faker) {
         'brief'         => '测试',
         'is_on_sale'    => 1,
         'sort_order'    => $faker->numberBetween(1, 999),
-        'pic_url'       => $faker->imageUrl(),
+        'pic_url'       => 'http://yanxuan.nosdn.127.net/3bd73b7279a83d1cbb50c0e45778e6d6.png',
         'share_url'     => $faker->url,
         'is_new'        => $faker->boolean,
         'is_hot'        => $faker->boolean,
@@ -47,7 +47,7 @@ $factory->define(\App\Models\Goods\GoodsProduct::class, function (Faker $faker) 
         'specifications' => [$spec->value],
         'price'         => 999,
         'number'        => 100,
-        'url'           => $faker->imageUrl()
+        'url'           => 'http://yanxuan.nosdn.127.net/3bd73b7279a83d1cbb50c0e45778e6d6.png'
     ];
 });
 

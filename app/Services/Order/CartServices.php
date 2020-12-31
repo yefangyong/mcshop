@@ -222,7 +222,7 @@ class CartServices extends BaseServices
         if ($num > $goodProduct->number) {
             $this->throwBusinessException(CodeResponse::GOODS_NO_STOCK);
         }
-        $cartProduct->number += $num;
+        $cartProduct->number = $num;
         $cartProduct->save();
         return $cartProduct;
     }
@@ -245,7 +245,7 @@ class CartServices extends BaseServices
             return CartServices::getInstance()->newCart($userId, $goodProduct, $goods, $number);
         } else {
             $num = $number + $cartProduct->number;
-            return $this->editCartNum($goodProduct, $num);
+            return $this->editCartNum($cartProduct, $goodProduct, $num);
         }
     }
 

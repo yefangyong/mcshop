@@ -22,7 +22,7 @@ $factory->define(\App\Models\User\User::class, function (Faker $faker) {
         'password' => \Illuminate\Support\Facades\Hash::make(123456), // password
         'gender'   => $faker->randomKey([0, 1]),
         'mobile'   => $faker->phoneNumber,
-        'avatar'   => $faker->imageUrl()
+        'avatar'   => 'http://yanxuan.nosdn.127.net/3bd73b7279a83d1cbb50c0e45778e6d6.png'
     ];
 });
 
