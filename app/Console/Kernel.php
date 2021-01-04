@@ -30,10 +30,6 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             OrderServices::getInstance()->autoConfirm();
         })->dailyAt('3:00')->runInBackground()->name('autoConfirm')->onOneServer();
-
-        $schedule->call(function () {
-            Log::info('test schedule');
-        })->everyMinute();
     }
 
     /**
