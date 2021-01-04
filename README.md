@@ -78,8 +78,115 @@
 git clone https://github.com/yefangyong/mcshop.git
 ```
 
+2、安装扩展包依赖
+
+```
+composer install
+```
+
+3、生成 `Laravel`  框架的配置文件
+
+```
+cp .env.example .env
+```
+
+根据情况修改成自己的配置，比如邮件发送配置，数据库配置，微信支付配置，支付宝支付配置等等
+
+```
+APP_URL=http://larabbs.test
+...
+DB_HOST=localhost
+DB_DATABASE=larabbs
+DB_USERNAME=homestead
+DB_PASSWORD=secret
+
+DOMAIN=.larabbs.test
+```
+
+4、 配置本地的 `laradock` 环境
+
+进入laradock目录，生成配置文件
+
+```
+cp .env.example .env
+```
+
+如果某些端口被占用，需要修改配置，改成其他的端口
+
+5、修改配置文件 .env
+
+```
+APP_CODE_PATH_HOST = ../../ 
+```
+
+6、启动框架运行环境
+
+```
+docker-compose up -d workspace redis mysql nginx
+```
+
+至此 `php` 运行环境搭建完成
+
+7、导入数据到数据库中
+
+`sql` 文件在 `sql` 目录中，使用数据库工具导入数据即可，比如 `navicat` 等
+
+### 前端框架安装
+
+> 前端代码在 `H5` 文件夹中
+
+1). 安装 node.js
+
+直接去官网 [https://nodejs.org/en/](https://nodejs.org/en/) 下载安装最新版本。
+
+2). 安装 Yarn
+
+请安装最新版本的 Yarn —— http://yarnpkg.cn/zh-Hans/docs/install
+
+3). 安装依赖包
+
+```shell
+yarn install
+```
+
+4). 编译前端内容
+
+```shell
+// 运行所有 Mix 任务...
+npm run dev
+
+// 运行所有 Mix 任务并缩小输出..
+npm run production
+```
+
+5). 监控修改并自动编译
+
+```shell
+npm run watch
+
+// 在某些环境中，当文件更改时，Webpack 不会更新。如果系统出现这种情况，请考虑使用 watch-poll 命令：
+
+npm run watch-poll
+```
+
 ## 扩展包使用情况
+
+| 扩展包 | 一句话描述 | 本项目应用场景 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| [tymondesigns/jwt-auth](github.com/tymondesigns/jwt-auth) | Jwt组件 | 用于登录注册 |
+| [barryvdh/laravel-ide-helper](https://github.com/barryvdh/laravel-ide-helper) | 代码提示组件 | 用户模型和门面代码提示  |
+| [Bacon/BaconQrCode](https://github.com/Bacon/BaconQrCode) | 图片生成和裁剪组件 | 用于团购二维码的生成 |
+| [yansongda/pay](https://github.com/yansongda/pay) | 微信支付和支付宝组件 | 用于微信支付和支付宝支付 |
+
 
 ## 自定义 Artisan 命令
 
+| 命令行名字 | 说明 | Cron | 代码调用 |
+| --- | --- | --- | --- |
+| `php artisan schedule:run` |  超时未确认自动收货 | 每天夜里3点运行 | 无 |
+
 ## 队列清单
+
+| 名称 | 说明 | 调用时机 |
+| --- | --- | --- |
+| php artisan queue:work | 超时未支付取消订单 | 用户提交订单超过30分钟未支付时 |
