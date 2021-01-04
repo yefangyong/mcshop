@@ -172,7 +172,7 @@ npm run watch-poll
 ## 扩展包使用情况
 
 | 扩展包 | 一句话描述 | 本项目应用场景 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| --- | --- | --- |
 | [tymondesigns/jwt-auth](github.com/tymondesigns/jwt-auth) | Jwt组件 | 用于登录注册 |
 | [barryvdh/laravel-ide-helper](https://github.com/barryvdh/laravel-ide-helper) | 代码提示组件 | 用户模型和门面代码提示  |
 | [Bacon/BaconQrCode](https://github.com/Bacon/BaconQrCode) | 图片生成和裁剪组件 | 用于团购二维码的生成 |
